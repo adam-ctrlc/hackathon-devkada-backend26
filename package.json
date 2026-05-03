@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "prettier": "prettier --write . --ignore-unknown"
   },
   "dependencies": {
     "@google/genai": "^1.51.0",
