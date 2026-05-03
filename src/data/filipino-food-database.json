@@ -1,0 +1,356 @@
+[
+  {
+    "name": "Steamed rice",
+    "aliases": ["rice", "kanin", "plain rice", "white rice", "1 cup rice"],
+    "nutrition": {
+      "calories": 205,
+      "sugarGrams": 0.1,
+      "sodiumMg": 2,
+      "fatGrams": 0.4,
+      "proteinGrams": 4.3,
+      "fiberGrams": 0.6
+    },
+    "priceEstimatePhp": 12,
+    "category": "carbohydrate",
+    "supportLevel": "Medium",
+    "budgetFriendly": true,
+    "ingredients": ["rice"],
+    "warnings": []
+  },
+  {
+    "name": "Fried egg",
+    "aliases": ["fried egg", "egg", "itlog"],
+    "nutrition": {
+      "calories": 90,
+      "sugarGrams": 0.1,
+      "sodiumMg": 95,
+      "fatGrams": 7,
+      "proteinGrams": 6,
+      "fiberGrams": 0
+    },
+    "priceEstimatePhp": 12,
+    "category": "protein",
+    "supportLevel": "High",
+    "budgetFriendly": true,
+    "ingredients": ["egg", "oil"],
+    "warnings": []
+  },
+  {
+    "name": "Boiled egg",
+    "aliases": ["boiled egg", "hard boiled egg", "egg"],
+    "nutrition": {
+      "calories": 78,
+      "sugarGrams": 0.1,
+      "sodiumMg": 62,
+      "fatGrams": 5,
+      "proteinGrams": 6,
+      "fiberGrams": 0
+    },
+    "priceEstimatePhp": 10,
+    "category": "protein",
+    "supportLevel": "High",
+    "budgetFriendly": true,
+    "ingredients": ["egg"],
+    "warnings": []
+  },
+  {
+    "name": "Hotdog",
+    "aliases": ["hotdog", "hot dog", "sausage"],
+    "nutrition": {
+      "calories": 150,
+      "sugarGrams": 1.5,
+      "sodiumMg": 420,
+      "fatGrams": 13,
+      "proteinGrams": 5,
+      "fiberGrams": 0
+    },
+    "priceEstimatePhp": 18,
+    "category": "protein",
+    "supportLevel": "Low",
+    "budgetFriendly": true,
+    "ingredients": ["hotdog", "oil"],
+    "warnings": ["high sodium"]
+  },
+  {
+    "name": "Chicken adobo",
+    "aliases": ["adobo", "chicken adobo", "pork adobo"],
+    "nutrition": {
+      "calories": 290,
+      "sugarGrams": 2,
+      "sodiumMg": 780,
+      "fatGrams": 17,
+      "proteinGrams": 24,
+      "fiberGrams": 1
+    },
+    "priceEstimatePhp": 55,
+    "category": "ulam",
+    "supportLevel": "Medium",
+    "budgetFriendly": true,
+    "ingredients": ["chicken", "soy sauce", "vinegar", "garlic"],
+    "warnings": ["high sodium"]
+  },
+  {
+    "name": "Sinigang",
+    "aliases": [
+      "sinigang",
+      "sinigang na baboy",
+      "sinigang na isda",
+      "sour soup"
+    ],
+    "nutrition": {
+      "calories": 250,
+      "sugarGrams": 4,
+      "sodiumMg": 920,
+      "fatGrams": 12,
+      "proteinGrams": 18,
+      "fiberGrams": 3
+    },
+    "priceEstimatePhp": 70,
+    "category": "soup",
+    "supportLevel": "Medium",
+    "budgetFriendly": true,
+    "ingredients": ["pork", "fish", "tomato", "vegetables"],
+    "warnings": ["high sodium"]
+  },
+  {
+    "name": "Pancit bihon",
+    "aliases": ["pancit", "pancit bihon", "pansit"],
+    "nutrition": {
+      "calories": 320,
+      "sugarGrams": 5,
+      "sodiumMg": 650,
+      "fatGrams": 10,
+      "proteinGrams": 10,
+      "fiberGrams": 3
+    },
+    "priceEstimatePhp": 45,
+    "category": "noodles",
+    "supportLevel": "Medium",
+    "budgetFriendly": true,
+    "ingredients": ["noodles", "vegetables", "egg", "cabbage"],
+    "warnings": ["high sodium"]
+  },
+  {
+    "name": "Tapsilog",
+    "aliases": ["tapsilog", "tapa", "silog"],
+    "nutrition": {
+      "calories": 620,
+      "sugarGrams": 5,
+      "sodiumMg": 980,
+      "fatGrams": 24,
+      "proteinGrams": 27,
+      "fiberGrams": 2
+    },
+    "priceEstimatePhp": 95,
+    "category": "breakfast",
+    "supportLevel": "Medium",
+    "budgetFriendly": false,
+    "ingredients": ["beef", "rice", "egg", "garlic"],
+    "warnings": ["high sodium"]
+  },
+  {
+    "name": "Lugaw",
+    "aliases": ["lugaw", "arroz caldo", "congee"],
+    "nutrition": {
+      "calories": 180,
+      "sugarGrams": 1,
+      "sodiumMg": 420,
+      "fatGrams": 4,
+      "proteinGrams": 5,
+      "fiberGrams": 1
+    },
+    "priceEstimatePhp": 28,
+    "category": "soup",
+    "supportLevel": "High",
+    "budgetFriendly": true,
+    "ingredients": ["rice", "ginger", "broth"],
+    "warnings": []
+  },
+  {
+    "name": "Instant noodles",
+    "aliases": ["instant noodles", "cup noodles", "ramen", "noodles"],
+    "nutrition": {
+      "calories": 390,
+      "sugarGrams": 4,
+      "sodiumMg": 1250,
+      "fatGrams": 14,
+      "proteinGrams": 8,
+      "fiberGrams": 2
+    },
+    "priceEstimatePhp": 18,
+    "category": "packaged",
+    "supportLevel": "Low",
+    "budgetFriendly": true,
+    "ingredients": ["wheat noodles", "seasoning"],
+    "warnings": ["high sodium"]
+  },
+  {
+    "name": "Canned sardines",
+    "aliases": ["canned sardines", "sardines", "lata sardinas"],
+    "nutrition": {
+      "calories": 210,
+      "sugarGrams": 1,
+      "sodiumMg": 620,
+      "fatGrams": 11,
+      "proteinGrams": 18,
+      "fiberGrams": 0
+    },
+    "priceEstimatePhp": 28,
+    "category": "packaged",
+    "supportLevel": "Medium",
+    "budgetFriendly": true,
+    "ingredients": ["fish", "tomato sauce"],
+    "warnings": ["high sodium"]
+  },
+  {
+    "name": "Street food mix",
+    "aliases": [
+      "street food",
+      "fish ball",
+      "fishball",
+      "kikiam",
+      "kwek kwek",
+      "isaw"
+    ],
+    "nutrition": {
+      "calories": 260,
+      "sugarGrams": 4,
+      "sodiumMg": 650,
+      "fatGrams": 14,
+      "proteinGrams": 8,
+      "fiberGrams": 1
+    },
+    "priceEstimatePhp": 35,
+    "category": "snack",
+    "supportLevel": "Low",
+    "budgetFriendly": true,
+    "ingredients": ["fried batter", "fish", "sauce"],
+    "warnings": ["high sodium"]
+  },
+  {
+    "name": "Carinderia meal",
+    "aliases": ["carinderia", "carinderia meal", "turo turo", "lutong bahay"],
+    "nutrition": {
+      "calories": 480,
+      "sugarGrams": 4,
+      "sodiumMg": 760,
+      "fatGrams": 18,
+      "proteinGrams": 18,
+      "fiberGrams": 3
+    },
+    "priceEstimatePhp": 80,
+    "category": "mixed meal",
+    "supportLevel": "Medium",
+    "budgetFriendly": true,
+    "ingredients": ["rice", "ulam", "vegetables"],
+    "warnings": ["high sodium"]
+  },
+  {
+    "name": "Monggo with vegetables",
+    "aliases": ["monggo", "munggo", "mung bean stew"],
+    "nutrition": {
+      "calories": 230,
+      "sugarGrams": 3,
+      "sodiumMg": 430,
+      "fatGrams": 5,
+      "proteinGrams": 12,
+      "fiberGrams": 7
+    },
+    "priceEstimatePhp": 35,
+    "category": "ulam",
+    "supportLevel": "High",
+    "budgetFriendly": true,
+    "ingredients": ["monggo", "vegetables", "garlic"],
+    "warnings": []
+  },
+  {
+    "name": "Banana",
+    "aliases": ["banana", "saging", "lakatan"],
+    "nutrition": {
+      "calories": 105,
+      "sugarGrams": 14,
+      "sodiumMg": 1,
+      "fatGrams": 0.4,
+      "proteinGrams": 1.3,
+      "fiberGrams": 3
+    },
+    "priceEstimatePhp": 12,
+    "category": "fruit",
+    "supportLevel": "High",
+    "budgetFriendly": true,
+    "ingredients": ["banana"],
+    "warnings": []
+  },
+  {
+    "name": "Oats",
+    "aliases": ["oats", "oatmeal", "porridge"],
+    "nutrition": {
+      "calories": 150,
+      "sugarGrams": 1,
+      "sodiumMg": 2,
+      "fatGrams": 3,
+      "proteinGrams": 5,
+      "fiberGrams": 4
+    },
+    "priceEstimatePhp": 18,
+    "category": "grain",
+    "supportLevel": "High",
+    "budgetFriendly": true,
+    "ingredients": ["oats", "water"],
+    "warnings": []
+  },
+  {
+    "name": "Tuna",
+    "aliases": ["tuna", "canned tuna"],
+    "nutrition": {
+      "calories": 120,
+      "sugarGrams": 0,
+      "sodiumMg": 300,
+      "fatGrams": 3,
+      "proteinGrams": 22,
+      "fiberGrams": 0
+    },
+    "priceEstimatePhp": 35,
+    "category": "protein",
+    "supportLevel": "High",
+    "budgetFriendly": true,
+    "ingredients": ["fish"],
+    "warnings": []
+  },
+  {
+    "name": "Cabbage",
+    "aliases": ["cabbage", "repolyo", "veggies"],
+    "nutrition": {
+      "calories": 22,
+      "sugarGrams": 3,
+      "sodiumMg": 18,
+      "fatGrams": 0.1,
+      "proteinGrams": 1.1,
+      "fiberGrams": 2.2
+    },
+    "priceEstimatePhp": 15,
+    "category": "vegetable",
+    "supportLevel": "High",
+    "budgetFriendly": true,
+    "ingredients": ["cabbage"],
+    "warnings": []
+  },
+  {
+    "name": "Water",
+    "aliases": ["water", "tubig"],
+    "nutrition": {
+      "calories": 0,
+      "sugarGrams": 0,
+      "sodiumMg": 0,
+      "fatGrams": 0,
+      "proteinGrams": 0,
+      "fiberGrams": 0
+    },
+    "priceEstimatePhp": 0,
+    "category": "drink",
+    "supportLevel": "High",
+    "budgetFriendly": true,
+    "ingredients": ["water"],
+    "warnings": []
+  }
+]

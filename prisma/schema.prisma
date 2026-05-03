@@ -1,0 +1,246 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum AccountRole {
+  ADMIN
+  PARENT
+  CHILD
+  INDIVIDUAL
+  CAREGIVER
+}
+
+enum AccountInviteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum Sex {
+  MALE
+  FEMALE
+}
+
+model Profile {
+  id               String          @id @default(cuid())
+  email            String?         @unique
+  passwordHash     String?
+  refreshTokenHash String?
+  resetTokenHash   String?
+  resetTokenExpiresAt DateTime?
+  lastLoginAt      DateTime?
+  firstName        String
+  middleName       String?
+  lastName         String
+  role             AccountRole     @default(INDIVIDUAL)
+  age              Int?
+  sex              Sex             @default(MALE)
+  heightCm         Int?
+  weightKg         Float?
+  activityLevel    String?
+  healthGoal       String?
+  diaryPinHash     String?
+  parentProfileId  String?
+  incomeAmount     Float?
+  incomeFrequency  String?
+  incomeCurrency   String?
+  budgetAmount     Float?
+  budgetFrequency  String?
+  budgetCurrency   String?
+  allergies        Json
+  foodPreferences  Json
+  dietRestrictions Json
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  healthContext    HealthContext?
+  parentProfile    Profile?        @relation("ProfileParent", fields: [parentProfileId], references: [id], onDelete: SetNull)
+  children         Profile[]       @relation("ProfileParent")
+  scans            FoodScan[]
+  mealLogs         MealLog[]
+  workoutLogs      WorkoutLog[]
+  waterLogs        WaterLog[]
+  wellnessTasks    WellnessTask[]
+  diaryEntries     DiaryEntry[]
+  diaryChunks      DiaryChunk[]
+  dailySummaries   DailySummary[]
+  sentInvites      AccountInvite[] @relation("InviteSender")
+  receivedInvites  AccountInvite[] @relation("InviteRecipient")
+}
+
+model HealthContext {
+  id                String   @id @default(cuid())
+  profileId         String   @unique
+  status            String?
+  notes             String?
+  customRestriction String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  profile           Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model AccountInvite {
+  id               String              @id @default(cuid())
+  code             String              @unique
+  inviterProfileId String
+  inviteeProfileId String?
+  invitedRole      AccountRole         @default(CHILD)
+  status           AccountInviteStatus @default(PENDING)
+  note             String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  acceptedAt       DateTime?
+  inviterProfile   Profile             @relation("InviteSender", fields: [inviterProfileId], references: [id], onDelete: Cascade)
+  inviteeProfile   Profile?            @relation("InviteRecipient", fields: [inviteeProfileId], references: [id], onDelete: SetNull)
+}
+
+model FoodScan {
+  id                     String   @id @default(cuid())
+  profileId              String
+  imageUrl               String?
+  imageThumbnailUrl      String?
+  imageFileId            String?
+  imageFilePath          String?
+  barcode                String?
+  productName            String
+  foodType               String?
+  estimatedPricePhp      Float?
+  estimatedPriceCurrency String?
+  calories               Int?
+  sugarGrams             Float?
+  sodiumMg               Float?
+  fatGrams               Float?
+  proteinGrams           Float?
+  fiberGrams             Float?
+  score                  Int
+  supportLevel           String
+  wellnessImpact         String
+  betterAlternatives     Json
+  notes                  Json
+  aiAnalysis             Json?
+  createdAt              DateTime @default(now())
+  profile                Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model MealLog {
+  id                     String   @id @default(cuid())
+  profileId              String
+  imageUrl               String?
+  imageThumbnailUrl      String?
+  imageFileId            String?
+  imageFilePath          String?
+  rawText                String
+  matchedProductName     String?
+  foodType               String?
+  source                 String
+  estimatedPricePhp      Float?
+  estimatedPriceCurrency String?
+  calories               Int?
+  sugarGrams             Float?
+  sodiumMg               Float?
+  fatGrams               Float?
+  proteinGrams           Float?
+  fiberGrams             Float?
+  score                  Int
+  supportLevel           String
+  wellnessImpact         String
+  betterAlternatives     Json
+  notes                  Json
+  aiAnalysis             Json?
+  createdAt              DateTime @default(now())
+  profile                Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model WorkoutLog {
+  id              String   @id @default(cuid())
+  profileId       String
+  title           String
+  workoutType     String?
+  source          String   @default("manual")
+  durationMinutes Int
+  durationHours   Float?
+  caloriesBurned  Int?
+  distanceKm      Float?
+  intensity       String?
+  notes           Json?
+  aiAnalysis      Json?
+  createdAt       DateTime @default(now())
+  profile         Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model DiaryEntry {
+  id              String       @id @default(cuid())
+  profileId       String
+  moodTag         String?
+  energyLevel     Int?
+  stressLevel     Int?
+  sleepHours      Float?
+  waterIntakeMl   Int?
+  activityMinutes Int?
+  weightKg        Float?
+  symptoms        Json?
+  entry           String
+  aiReflection    String
+  createdAt       DateTime     @default(now())
+  profile         Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  chunks          DiaryChunk[]
+}
+
+model DiaryChunk {
+  id           String      @id @default(cuid())
+  profileId    String
+  diaryEntryId String?
+  chunkIndex   Int
+  chunkText    String
+  embedding    Json?
+  source       String      @default("journal")
+  createdAt    DateTime    @default(now())
+  profile      Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  diaryEntry   DiaryEntry? @relation(fields: [diaryEntryId], references: [id], onDelete: Cascade)
+}
+
+model DailySummary {
+  id           String   @id @default(cuid())
+  profileId    String
+  date         DateTime
+  score        Int
+  supportLevel String
+  highlights   Json
+  suggestions  Json
+  aiSummary    Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  profile      Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, date])
+}
+
+model WellnessTask {
+  id        String    @id @default(cuid())
+  profileId String
+  title     String
+  reason    String?
+  action    String?
+  category  String?
+  priority  String?
+  status    String    @default("suggested")
+  source    String    @default("manual")
+  dueDate   DateTime?
+  aiPayload Json?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  profile   Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model WaterLog {
+  id        String   @id @default(cuid())
+  profileId String
+  amountMl  Int
+  source    String   @default("manual")
+  note      String?
+  createdAt DateTime @default(now())
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}

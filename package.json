@@ -1,0 +1,33 @@
+{
+  "type": "module",
+  "author": "adam-ctrlc",
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js",
+    "prisma:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@google/genai": "^1.51.0",
+    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^11.10.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.4.1",
+    "file-type": "^22.0.1",
+    "imagekit": "^6.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "mammoth": "^1.12.0",
+    "ml-knn": "^3.0.0",
+    "multer": "^2.1.1",
+    "pdf-parse": "^2.4.5",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.3",
+    "prisma": "^7"
+  }
+}

@@ -1,0 +1,1171 @@
+[
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 180,
+      "sugarGrams": 8,
+      "sodiumMg": 180,
+      "fatGrams": 6,
+      "proteinGrams": 18,
+      "fiberGrams": 6
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 240,
+      "sugarGrams": 6,
+      "sodiumMg": 220,
+      "fatGrams": 8,
+      "proteinGrams": 20,
+      "fiberGrams": 5
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 200,
+      "sugarGrams": 4,
+      "sodiumMg": 160,
+      "fatGrams": 5,
+      "proteinGrams": 16,
+      "fiberGrams": 7
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 260,
+      "sugarGrams": 7,
+      "sodiumMg": 240,
+      "fatGrams": 9,
+      "proteinGrams": 17,
+      "fiberGrams": 6
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 220,
+      "sugarGrams": 9,
+      "sodiumMg": 200,
+      "fatGrams": 7,
+      "proteinGrams": 19,
+      "fiberGrams": 6
+    }
+  },
+
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 430,
+      "sugarGrams": 12,
+      "sodiumMg": 480,
+      "fatGrams": 15,
+      "proteinGrams": 12,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 520,
+      "sugarGrams": 14,
+      "sodiumMg": 560,
+      "fatGrams": 17,
+      "proteinGrams": 13,
+      "fiberGrams": 3
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 390,
+      "sugarGrams": 10,
+      "sodiumMg": 420,
+      "fatGrams": 11,
+      "proteinGrams": 11,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 470,
+      "sugarGrams": 16,
+      "sodiumMg": 510,
+      "fatGrams": 14,
+      "proteinGrams": 10,
+      "fiberGrams": 3
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 360,
+      "sugarGrams": 8,
+      "sodiumMg": 400,
+      "fatGrams": 12,
+      "proteinGrams": 14,
+      "fiberGrams": 4
+    }
+  },
+
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 720,
+      "sugarGrams": 28,
+      "sodiumMg": 1250,
+      "fatGrams": 24,
+      "proteinGrams": 7,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 610,
+      "sugarGrams": 24,
+      "sodiumMg": 980,
+      "fatGrams": 20,
+      "proteinGrams": 6,
+      "fiberGrams": 2
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 540,
+      "sugarGrams": 22,
+      "sodiumMg": 1100,
+      "fatGrams": 18,
+      "proteinGrams": 5,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 680,
+      "sugarGrams": 30,
+      "sodiumMg": 1400,
+      "fatGrams": 26,
+      "proteinGrams": 8,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 590,
+      "sugarGrams": 20,
+      "sodiumMg": 900,
+      "fatGrams": 19,
+      "proteinGrams": 7,
+      "fiberGrams": 2
+    }
+  },
+
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 170,
+      "sugarGrams": 3,
+      "sodiumMg": 140,
+      "fatGrams": 4,
+      "proteinGrams": 21,
+      "fiberGrams": 7
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 210,
+      "sugarGrams": 5,
+      "sodiumMg": 190,
+      "fatGrams": 6,
+      "proteinGrams": 24,
+      "fiberGrams": 5
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 195,
+      "sugarGrams": 6,
+      "sodiumMg": 175,
+      "fatGrams": 5,
+      "proteinGrams": 22,
+      "fiberGrams": 6
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 230,
+      "sugarGrams": 7,
+      "sodiumMg": 210,
+      "fatGrams": 7,
+      "proteinGrams": 23,
+      "fiberGrams": 5
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 250,
+      "sugarGrams": 8,
+      "sodiumMg": 230,
+      "fatGrams": 8,
+      "proteinGrams": 20,
+      "fiberGrams": 6
+    }
+  },
+
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 310,
+      "sugarGrams": 9,
+      "sodiumMg": 310,
+      "fatGrams": 10,
+      "proteinGrams": 15,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 340,
+      "sugarGrams": 11,
+      "sodiumMg": 350,
+      "fatGrams": 11,
+      "proteinGrams": 14,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 410,
+      "sugarGrams": 13,
+      "sodiumMg": 460,
+      "fatGrams": 13,
+      "proteinGrams": 16,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 450,
+      "sugarGrams": 15,
+      "sodiumMg": 520,
+      "fatGrams": 14,
+      "proteinGrams": 15,
+      "fiberGrams": 3
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 380,
+      "sugarGrams": 10,
+      "sodiumMg": 390,
+      "fatGrams": 12,
+      "proteinGrams": 13,
+      "fiberGrams": 5
+    }
+  },
+
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 760,
+      "sugarGrams": 32,
+      "sodiumMg": 1500,
+      "fatGrams": 28,
+      "proteinGrams": 6,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 640,
+      "sugarGrams": 26,
+      "sodiumMg": 1020,
+      "fatGrams": 21,
+      "proteinGrams": 7,
+      "fiberGrams": 2
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 570,
+      "sugarGrams": 21,
+      "sodiumMg": 950,
+      "fatGrams": 18,
+      "proteinGrams": 8,
+      "fiberGrams": 2
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 700,
+      "sugarGrams": 29,
+      "sodiumMg": 1320,
+      "fatGrams": 25,
+      "proteinGrams": 9,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 620,
+      "sugarGrams": 23,
+      "sodiumMg": 880,
+      "fatGrams": 20,
+      "proteinGrams": 6,
+      "fiberGrams": 2
+    }
+  },
+
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 185,
+      "sugarGrams": 4,
+      "sodiumMg": 150,
+      "fatGrams": 5,
+      "proteinGrams": 25,
+      "fiberGrams": 7
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 215,
+      "sugarGrams": 6,
+      "sodiumMg": 185,
+      "fatGrams": 6,
+      "proteinGrams": 18,
+      "fiberGrams": 8
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 275,
+      "sugarGrams": 9,
+      "sodiumMg": 260,
+      "fatGrams": 9,
+      "proteinGrams": 21,
+      "fiberGrams": 6
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 190,
+      "sugarGrams": 5,
+      "sodiumMg": 155,
+      "fatGrams": 4,
+      "proteinGrams": 19,
+      "fiberGrams": 7
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 245,
+      "sugarGrams": 7,
+      "sodiumMg": 225,
+      "fatGrams": 8,
+      "proteinGrams": 22,
+      "fiberGrams": 5
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 160,
+      "sugarGrams": 2,
+      "sodiumMg": 130,
+      "fatGrams": 4,
+      "proteinGrams": 23,
+      "fiberGrams": 8
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 205,
+      "sugarGrams": 6,
+      "sodiumMg": 170,
+      "fatGrams": 5,
+      "proteinGrams": 20,
+      "fiberGrams": 7
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 235,
+      "sugarGrams": 8,
+      "sodiumMg": 215,
+      "fatGrams": 7,
+      "proteinGrams": 18,
+      "fiberGrams": 6
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 225,
+      "sugarGrams": 5,
+      "sodiumMg": 205,
+      "fatGrams": 6,
+      "proteinGrams": 26,
+      "fiberGrams": 5
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 255,
+      "sugarGrams": 9,
+      "sodiumMg": 245,
+      "fatGrams": 8,
+      "proteinGrams": 24,
+      "fiberGrams": 6
+    }
+  },
+
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 330,
+      "sugarGrams": 10,
+      "sodiumMg": 360,
+      "fatGrams": 11,
+      "proteinGrams": 12,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 425,
+      "sugarGrams": 14,
+      "sodiumMg": 470,
+      "fatGrams": 13,
+      "proteinGrams": 15,
+      "fiberGrams": 3
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 500,
+      "sugarGrams": 17,
+      "sodiumMg": 550,
+      "fatGrams": 16,
+      "proteinGrams": 11,
+      "fiberGrams": 3
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 375,
+      "sugarGrams": 9,
+      "sodiumMg": 410,
+      "fatGrams": 12,
+      "proteinGrams": 16,
+      "fiberGrams": 5
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 455,
+      "sugarGrams": 15,
+      "sodiumMg": 530,
+      "fatGrams": 15,
+      "proteinGrams": 14,
+      "fiberGrams": 3
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 395,
+      "sugarGrams": 12,
+      "sodiumMg": 440,
+      "fatGrams": 13,
+      "proteinGrams": 13,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 485,
+      "sugarGrams": 18,
+      "sodiumMg": 590,
+      "fatGrams": 17,
+      "proteinGrams": 12,
+      "fiberGrams": 3
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 350,
+      "sugarGrams": 8,
+      "sodiumMg": 370,
+      "fatGrams": 10,
+      "proteinGrams": 17,
+      "fiberGrams": 5
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 445,
+      "sugarGrams": 13,
+      "sodiumMg": 500,
+      "fatGrams": 14,
+      "proteinGrams": 15,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 515,
+      "sugarGrams": 16,
+      "sodiumMg": 610,
+      "fatGrams": 18,
+      "proteinGrams": 10,
+      "fiberGrams": 3
+    }
+  },
+
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 660,
+      "sugarGrams": 25,
+      "sodiumMg": 1150,
+      "fatGrams": 22,
+      "proteinGrams": 7,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 740,
+      "sugarGrams": 31,
+      "sodiumMg": 1450,
+      "fatGrams": 27,
+      "proteinGrams": 8,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 585,
+      "sugarGrams": 19,
+      "sodiumMg": 920,
+      "fatGrams": 19,
+      "proteinGrams": 6,
+      "fiberGrams": 2
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 690,
+      "sugarGrams": 27,
+      "sodiumMg": 1280,
+      "fatGrams": 24,
+      "proteinGrams": 9,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 800,
+      "sugarGrams": 35,
+      "sodiumMg": 1600,
+      "fatGrams": 30,
+      "proteinGrams": 5,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 560,
+      "sugarGrams": 22,
+      "sodiumMg": 970,
+      "fatGrams": 18,
+      "proteinGrams": 7,
+      "fiberGrams": 2
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 710,
+      "sugarGrams": 30,
+      "sodiumMg": 1360,
+      "fatGrams": 26,
+      "proteinGrams": 6,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 630,
+      "sugarGrams": 24,
+      "sodiumMg": 1040,
+      "fatGrams": 21,
+      "proteinGrams": 8,
+      "fiberGrams": 2
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 770,
+      "sugarGrams": 33,
+      "sodiumMg": 1510,
+      "fatGrams": 29,
+      "proteinGrams": 7,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 605,
+      "sugarGrams": 21,
+      "sodiumMg": 990,
+      "fatGrams": 20,
+      "proteinGrams": 6,
+      "fiberGrams": 2
+    }
+  },
+
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 175,
+      "sugarGrams": 4,
+      "sodiumMg": 145,
+      "fatGrams": 4,
+      "proteinGrams": 22,
+      "fiberGrams": 8
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 265,
+      "sugarGrams": 8,
+      "sodiumMg": 255,
+      "fatGrams": 9,
+      "proteinGrams": 19,
+      "fiberGrams": 6
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 155,
+      "sugarGrams": 3,
+      "sodiumMg": 120,
+      "fatGrams": 3,
+      "proteinGrams": 20,
+      "fiberGrams": 9
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 285,
+      "sugarGrams": 10,
+      "sodiumMg": 280,
+      "fatGrams": 10,
+      "proteinGrams": 18,
+      "fiberGrams": 5
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 195,
+      "sugarGrams": 5,
+      "sodiumMg": 165,
+      "fatGrams": 5,
+      "proteinGrams": 25,
+      "fiberGrams": 7
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 215,
+      "sugarGrams": 7,
+      "sodiumMg": 195,
+      "fatGrams": 6,
+      "proteinGrams": 21,
+      "fiberGrams": 6
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 235,
+      "sugarGrams": 6,
+      "sodiumMg": 225,
+      "fatGrams": 7,
+      "proteinGrams": 24,
+      "fiberGrams": 6
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 205,
+      "sugarGrams": 4,
+      "sodiumMg": 180,
+      "fatGrams": 5,
+      "proteinGrams": 23,
+      "fiberGrams": 8
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 245,
+      "sugarGrams": 9,
+      "sodiumMg": 235,
+      "fatGrams": 8,
+      "proteinGrams": 20,
+      "fiberGrams": 7
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 185,
+      "sugarGrams": 6,
+      "sodiumMg": 150,
+      "fatGrams": 4,
+      "proteinGrams": 26,
+      "fiberGrams": 6
+    }
+  },
+
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 320,
+      "sugarGrams": 9,
+      "sodiumMg": 330,
+      "fatGrams": 10,
+      "proteinGrams": 14,
+      "fiberGrams": 5
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 365,
+      "sugarGrams": 11,
+      "sodiumMg": 390,
+      "fatGrams": 12,
+      "proteinGrams": 13,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 405,
+      "sugarGrams": 13,
+      "sodiumMg": 450,
+      "fatGrams": 13,
+      "proteinGrams": 15,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 465,
+      "sugarGrams": 16,
+      "sodiumMg": 540,
+      "fatGrams": 15,
+      "proteinGrams": 12,
+      "fiberGrams": 3
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 535,
+      "sugarGrams": 18,
+      "sodiumMg": 630,
+      "fatGrams": 18,
+      "proteinGrams": 11,
+      "fiberGrams": 3
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 345,
+      "sugarGrams": 10,
+      "sodiumMg": 365,
+      "fatGrams": 11,
+      "proteinGrams": 16,
+      "fiberGrams": 5
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 415,
+      "sugarGrams": 12,
+      "sodiumMg": 475,
+      "fatGrams": 14,
+      "proteinGrams": 14,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 490,
+      "sugarGrams": 17,
+      "sodiumMg": 580,
+      "fatGrams": 16,
+      "proteinGrams": 10,
+      "fiberGrams": 3
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 370,
+      "sugarGrams": 8,
+      "sodiumMg": 405,
+      "fatGrams": 12,
+      "proteinGrams": 17,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 440,
+      "sugarGrams": 14,
+      "sodiumMg": 515,
+      "fatGrams": 15,
+      "proteinGrams": 13,
+      "fiberGrams": 4
+    }
+  },
+
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 575,
+      "sugarGrams": 23,
+      "sodiumMg": 940,
+      "fatGrams": 19,
+      "proteinGrams": 7,
+      "fiberGrams": 2
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 650,
+      "sugarGrams": 26,
+      "sodiumMg": 1120,
+      "fatGrams": 22,
+      "proteinGrams": 8,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 725,
+      "sugarGrams": 29,
+      "sodiumMg": 1380,
+      "fatGrams": 25,
+      "proteinGrams": 6,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 795,
+      "sugarGrams": 34,
+      "sodiumMg": 1580,
+      "fatGrams": 30,
+      "proteinGrams": 5,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 615,
+      "sugarGrams": 22,
+      "sodiumMg": 1010,
+      "fatGrams": 21,
+      "proteinGrams": 9,
+      "fiberGrams": 2
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 685,
+      "sugarGrams": 28,
+      "sodiumMg": 1240,
+      "fatGrams": 24,
+      "proteinGrams": 7,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 755,
+      "sugarGrams": 31,
+      "sodiumMg": 1490,
+      "fatGrams": 28,
+      "proteinGrams": 6,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 545,
+      "sugarGrams": 20,
+      "sodiumMg": 910,
+      "fatGrams": 18,
+      "proteinGrams": 8,
+      "fiberGrams": 2
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 705,
+      "sugarGrams": 27,
+      "sodiumMg": 1330,
+      "fatGrams": 26,
+      "proteinGrams": 9,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 670,
+      "sugarGrams": 25,
+      "sodiumMg": 1190,
+      "fatGrams": 23,
+      "proteinGrams": 7,
+      "fiberGrams": 2
+    }
+  },
+
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 165,
+      "sugarGrams": 3,
+      "sodiumMg": 135,
+      "fatGrams": 4,
+      "proteinGrams": 24,
+      "fiberGrams": 8
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 225,
+      "sugarGrams": 7,
+      "sodiumMg": 205,
+      "fatGrams": 6,
+      "proteinGrams": 22,
+      "fiberGrams": 7
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 250,
+      "sugarGrams": 8,
+      "sodiumMg": 245,
+      "fatGrams": 8,
+      "proteinGrams": 21,
+      "fiberGrams": 6
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 205,
+      "sugarGrams": 5,
+      "sodiumMg": 175,
+      "fatGrams": 5,
+      "proteinGrams": 27,
+      "fiberGrams": 7
+    }
+  },
+  {
+    "label": "High",
+    "nutrition": {
+      "calories": 275,
+      "sugarGrams": 10,
+      "sodiumMg": 270,
+      "fatGrams": 9,
+      "proteinGrams": 19,
+      "fiberGrams": 5
+    }
+  },
+
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 355,
+      "sugarGrams": 10,
+      "sodiumMg": 380,
+      "fatGrams": 11,
+      "proteinGrams": 15,
+      "fiberGrams": 5
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 430,
+      "sugarGrams": 15,
+      "sodiumMg": 490,
+      "fatGrams": 14,
+      "proteinGrams": 12,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 505,
+      "sugarGrams": 18,
+      "sodiumMg": 600,
+      "fatGrams": 17,
+      "proteinGrams": 11,
+      "fiberGrams": 3
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 395,
+      "sugarGrams": 12,
+      "sodiumMg": 445,
+      "fatGrams": 13,
+      "proteinGrams": 16,
+      "fiberGrams": 4
+    }
+  },
+  {
+    "label": "Medium",
+    "nutrition": {
+      "calories": 475,
+      "sugarGrams": 16,
+      "sodiumMg": 555,
+      "fatGrams": 16,
+      "proteinGrams": 13,
+      "fiberGrams": 3
+    }
+  },
+
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 595,
+      "sugarGrams": 24,
+      "sodiumMg": 960,
+      "fatGrams": 20,
+      "proteinGrams": 6,
+      "fiberGrams": 2
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 635,
+      "sugarGrams": 26,
+      "sodiumMg": 1060,
+      "fatGrams": 22,
+      "proteinGrams": 7,
+      "fiberGrams": 2
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 715,
+      "sugarGrams": 30,
+      "sodiumMg": 1370,
+      "fatGrams": 27,
+      "proteinGrams": 8,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 780,
+      "sugarGrams": 33,
+      "sodiumMg": 1550,
+      "fatGrams": 29,
+      "proteinGrams": 6,
+      "fiberGrams": 1
+    }
+  },
+  {
+    "label": "Low",
+    "nutrition": {
+      "calories": 665,
+      "sugarGrams": 27,
+      "sodiumMg": 1210,
+      "fatGrams": 24,
+      "proteinGrams": 9,
+      "fiberGrams": 1
+    }
+  }
+]

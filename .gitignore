@@ -1,0 +1,35 @@
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Build and runtime output
+dist/
+build/
+coverage/
+tmp/
+temp/
+logs/
+*.log
+
+# Generated and local data
+src/generated/
+prisma/dev.db
+prisma/dev.db-*
+example/
+reference.docx
