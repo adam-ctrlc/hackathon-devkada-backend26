@@ -26,49 +26,49 @@ enum Sex {
 }
 
 model Profile {
-  id               String          @id @default(cuid())
-  email            String?         @unique
-  passwordHash     String?
-  refreshTokenHash String?
-  resetTokenHash   String?
+  id                  String          @id @default(cuid())
+  email               String?         @unique
+  passwordHash        String?
+  refreshTokenHash    String?
+  resetTokenHash      String?
   resetTokenExpiresAt DateTime?
-  lastLoginAt      DateTime?
-  firstName        String
-  middleName       String?
-  lastName         String
-  role             AccountRole     @default(INDIVIDUAL)
-  age              Int?
-  sex              Sex             @default(MALE)
-  heightCm         Int?
-  weightKg         Float?
-  activityLevel    String?
-  healthGoal       String?
-  diaryPinHash     String?
-  parentProfileId  String?
-  incomeAmount     Float?
-  incomeFrequency  String?
-  incomeCurrency   String?
-  budgetAmount     Float?
-  budgetFrequency  String?
-  budgetCurrency   String?
-  allergies        Json
-  foodPreferences  Json
-  dietRestrictions Json
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  healthContext    HealthContext?
-  parentProfile    Profile?        @relation("ProfileParent", fields: [parentProfileId], references: [id], onDelete: SetNull)
-  children         Profile[]       @relation("ProfileParent")
-  scans            FoodScan[]
-  mealLogs         MealLog[]
-  workoutLogs      WorkoutLog[]
-  waterLogs        WaterLog[]
-  wellnessTasks    WellnessTask[]
-  diaryEntries     DiaryEntry[]
-  diaryChunks      DiaryChunk[]
-  dailySummaries   DailySummary[]
-  sentInvites      AccountInvite[] @relation("InviteSender")
-  receivedInvites  AccountInvite[] @relation("InviteRecipient")
+  lastLoginAt         DateTime?
+  firstName           String
+  middleName          String?
+  lastName            String
+  role                AccountRole     @default(INDIVIDUAL)
+  age                 Int?
+  sex                 Sex             @default(MALE)
+  heightCm            Int?
+  weightKg            Float?
+  activityLevel       String?
+  healthGoal          String?
+  diaryPinHash        String?
+  parentProfileId     String?
+  incomeAmount        Float?
+  incomeFrequency     String?
+  incomeCurrency      String?
+  budgetAmount        Float?
+  budgetFrequency     String?
+  budgetCurrency      String?
+  allergies           Json
+  foodPreferences     Json
+  dietRestrictions    Json
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  healthContext       HealthContext?
+  parentProfile       Profile?        @relation("ProfileParent", fields: [parentProfileId], references: [id], onDelete: SetNull)
+  children            Profile[]       @relation("ProfileParent")
+  scans               FoodScan[]
+  mealLogs            MealLog[]
+  workoutLogs         WorkoutLog[]
+  waterLogs           WaterLog[]
+  wellnessTasks       WellnessTask[]
+  diaryEntries        DiaryEntry[]
+  diaryChunks         DiaryChunk[]
+  dailySummaries      DailySummary[]
+  sentInvites         AccountInvite[] @relation("InviteSender")
+  receivedInvites     AccountInvite[] @relation("InviteRecipient")
 }
 
 model HealthContext {
