@@ -39,6 +39,9 @@ export const env = {
     "KainWise/1.0",
   ocrLanguage: process.env.OCR_LANGUAGE ?? "eng",
   ocrMaxFileSizeMb: toNumber(process.env.OCR_MAX_FILE_SIZE_MB, 8),
+  ocrSpaceApiKey: process.env.OCR_SPACE_API_KEY ?? process.env.OCR_API_KEY ?? "",
+  ocrSpaceEndpoint:
+    process.env.OCR_SPACE_ENDPOINT ?? "https://api.ocr.space/parse/image",
   geminiEmbeddingModel:
     process.env.GEMINI_EMBEDDING_MODEL ?? "gemini-embedding-2",
   rateLimitWindowMs: toNumber(process.env.RATE_LIMIT_WINDOW_MS, 15 * 60 * 1000),
