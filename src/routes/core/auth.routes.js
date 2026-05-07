@@ -166,7 +166,7 @@ export const registerAuthRoutes = (app) => {
             select: getAuthProfileSelect,
           });
 
-      sendEmailVerificationEmail({
+      await sendEmailVerificationEmail({
         toEmail: email,
         code: verifyCode,
         firstName: profile.firstName,
@@ -254,7 +254,7 @@ export const registerAuthRoutes = (app) => {
         },
       });
 
-      sendEmailVerificationEmail({
+      await sendEmailVerificationEmail({
         toEmail: email,
         code: verifyCode,
         firstName: profile.firstName,
@@ -379,7 +379,7 @@ export const registerAuthRoutes = (app) => {
         },
       });
 
-      sendPasswordResetEmail({
+      await sendPasswordResetEmail({
         toEmail: profile.email,
         resetToken: reset.resetToken,
         firstName: profile.firstName,
