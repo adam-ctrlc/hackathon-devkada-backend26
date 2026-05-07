@@ -36,6 +36,7 @@ export const authRegisterBodySchema = z
     weightKg: optionalNumber,
     activityLevel: optionalText(80),
     healthGoal: optionalText(255),
+    dietPattern: optionalText(80),
     parentProfileId: optionalText(80),
     incomeAmount: optionalNumber,
     incomeFrequency: optionalText(40),

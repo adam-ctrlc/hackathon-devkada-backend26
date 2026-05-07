@@ -8,17 +8,27 @@ const optionalTrimmedString = (max = 255) =>
 
 const optionalPositiveNumber = z.preprocess(
   emptyToUndefined,
-  z.coerce.number().finite().nonnegative().optional(),
+  z.coerce.number().finite().positive().optional(),
+);
+
+const optionalHeightCm = z.preprocess(
+  emptyToUndefined,
+  z.coerce.number().finite().min(10).max(300).optional(),
+);
+
+const optionalWeightKg = z.preprocess(
+  emptyToUndefined,
+  z.coerce.number().finite().min(0.5).max(600).optional(),
 );
 
 const optionalInt = z.preprocess(
   emptyToUndefined,
-  z.coerce.number().int().min(0).max(130).finite().optional(),
+  z.coerce.number().int().min(1).max(130).finite().optional(),
 );
 
 const tagList = z.preprocess(
   (value) => (Array.isArray(value) ? value : undefined),
-  z.array(z.string().trim().min(1).max(80)).optional(),
+  z.array(z.string().trim().min(1).max(80)).max(50).optional(),
 );
 
 const currencyCode = z.preprocess(
@@ -41,10 +51,11 @@ const profileBodySchema = z
     role: optionalTrimmedString(40),
     age: optionalInt,
     sex: optionalTrimmedString(20),
-    heightCm: optionalPositiveNumber,
-    weightKg: optionalPositiveNumber,
+    heightCm: optionalHeightCm,
+    weightKg: optionalWeightKg,
     activityLevel: optionalTrimmedString(80),
     healthGoal: optionalTrimmedString(255),
+    dietPattern: optionalTrimmedString(80),
     incomeAmount: optionalPositiveNumber,
     incomeFrequency: optionalTrimmedString(40),
     incomeCurrency: currencyCode,

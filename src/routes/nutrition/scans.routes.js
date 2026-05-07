@@ -23,6 +23,7 @@ import {
   uploadRouteLimiter,
 } from "../../middleware/security.middleware.js";
 import { requireProfileAccess } from "../../services/profile/profile-access.service.js";
+import { requireAuth } from "../../middleware/auth.middleware.js";
 import { inferFoodType } from "../../services/nutrition/meal-knowledge.service.js";
 import { resolveMealTiming } from "../../utils/meal-timing.js";
 import {
@@ -293,6 +294,7 @@ export const registerScanRoutes = (app) => {
 
   app.post(
     "/scans",
+    requireAuth,
     scanRouteLimiter,
     asyncHandler(async (req, res) => {
       const payload = req.body ?? {};
@@ -314,6 +316,11 @@ export const registerScanRoutes = (app) => {
 
       if (!profile) {
         return res.status(404).json({ error: "Profile not found" });
+      }
+
+      const accessCheck = await requireProfileAccess(req, res, profile);
+      if (!accessCheck.allowed) {
+        return;
       }
 
       const barcode = payload.barcode?.trim() ?? null;
@@ -489,15 +496,14 @@ export const registerScanRoutes = (app) => {
         },
       });
 
-      setImmediate(() => {
-        refreshDailySummary(payload.profileId, scan.createdAt).catch((error) =>
+      await refreshDailySummary(payload.profileId, scan.createdAt).catch(
+        (error) =>
           console.error("scan.live.summary.error", {
             profileId: payload.profileId,
             scanId: scan.id,
             message: error?.message ?? "Unknown summary error",
           }),
-        );
-      });
+      );
 
       res.status(201).json({ scan, analysis });
     }),
@@ -592,15 +598,14 @@ export const registerScanRoutes = (app) => {
         },
       });
 
-      setImmediate(() => {
-        refreshDailySummary(payload.profileId, scan.createdAt).catch((error) =>
+      await refreshDailySummary(payload.profileId, scan.createdAt).catch(
+        (error) =>
           console.error("scan.manual.summary.error", {
             profileId: payload.profileId,
             scanId: scan.id,
             message: error?.message ?? "Unknown summary error",
           }),
-        );
-      });
+      );
 
       res.status(201).json({ scan, analysis, correction });
     }),
@@ -608,6 +613,7 @@ export const registerScanRoutes = (app) => {
 
   app.post(
     "/scans/image",
+    requireAuth,
     uploadRouteLimiter,
     upload.single("image"),
     asyncHandler(async (req, res) => {
@@ -634,6 +640,11 @@ export const registerScanRoutes = (app) => {
         return res.status(404).json({ error: "Profile not found" });
       }
 
+      const imageAccessCheck = await requireProfileAccess(req, res, profile);
+      if (!imageAccessCheck.allowed) {
+        return;
+      }
+
       const uploadResult = await extractTextFromUpload({
         buffer: req.file.buffer,
         mimetype: req.file.mimetype,
@@ -654,6 +665,7 @@ export const registerScanRoutes = (app) => {
 
   app.post(
     "/scans/upload",
+    requireAuth,
     uploadRouteLimiter,
     upload.single("file"),
     asyncHandler(async (req, res) => {
@@ -678,6 +690,11 @@ export const registerScanRoutes = (app) => {
 
       if (!profile) {
         return res.status(404).json({ error: "Profile not found" });
+      }
+
+      const uploadAccessCheck = await requireProfileAccess(req, res, profile);
+      if (!uploadAccessCheck.allowed) {
+        return;
       }
 
       const uploadResult = await extractTextFromUpload({

@@ -1,14 +1,16 @@
 import "dotenv/config";
 import bcrypt from "bcryptjs";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { neonConfig } from "@neondatabase/serverless";
+import { PrismaNeon } from "@prisma/adapter-neon";
 import prismaClientPkg from "@prisma/client";
+import ws from "ws";
+
+neonConfig.webSocketConstructor = ws;
 
 const { PrismaClient } = prismaClientPkg;
 
 const prisma = new PrismaClient({
-  adapter: new PrismaBetterSqlite3({
-    url: process.env.DATABASE_URL ?? "file:./prisma/dev.db",
-  }),
+  adapter: new PrismaNeon({ connectionString: process.env.DATABASE_URL }),
 });
 
 const hashPassword = async (password) => bcrypt.hash(password, 10);

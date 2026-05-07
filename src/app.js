@@ -29,26 +29,32 @@ export const createApp = () => {
     env.corsOrigins.map((origin) => String(origin).trim().replace(/\/$/, "")),
   );
 
+  const setCorsHeaders = (res, origin) => {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Vary", "Origin");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, x-csrf-token, x-requested-with, x-diary-pin",
+    );
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+    );
+  };
+
   app.use((req, res, next) => {
     const origin = String(req.get("origin") ?? "")
       .trim()
       .replace(/\/$/, "");
-    if (origin && allowedOrigins.has(origin)) {
-      res.setHeader("Access-Control-Allow-Origin", origin);
-      res.setHeader("Access-Control-Allow-Credentials", "true");
-      res.setHeader("Vary", "Origin");
-      res.setHeader(
-        "Access-Control-Allow-Headers",
-        "Content-Type, Authorization, x-csrf-token, x-requested-with, x-diary-pin",
-      );
-      res.setHeader(
-        "Access-Control-Allow-Methods",
-        "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
-      );
+    const allowed = origin && allowedOrigins.has(origin);
+
+    if (allowed) {
+      setCorsHeaders(res, origin);
     }
 
     if (req.method === "OPTIONS") {
-      return res.sendStatus(204);
+      return res.sendStatus(allowed ? 204 : 403);
     }
 
     return next();

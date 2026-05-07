@@ -59,23 +59,31 @@ const normalizeScanSignals = (scans = []) =>
     })
     .filter(Boolean);
 
-const buildDiaryData = ({ payload, entry, aiReflection }) => ({
-  moodTag: payload.moodTag?.trim() ?? null,
-  energyLevel: toOptionalNumber(payload.energyLevel),
-  stressLevel: toOptionalNumber(payload.stressLevel),
-  sleepHours: toOptionalNumber(payload.sleepHours),
-  waterIntakeMl: toOptionalNumber(payload.waterIntakeMl),
-  activityMinutes: toOptionalNumber(payload.activityMinutes),
-  weightKg: toOptionalNumber(payload.weightKg),
-  symptoms: Array.isArray(payload.symptoms) ? payload.symptoms : null,
-  entry,
-  aiReflection,
-});
+const clamp = (value, min, max) =>
+  value === null ? null : Math.min(max, Math.max(min, value));
+
+const buildDiaryData = ({ payload, entry, aiReflection }) => {
+  const sleepHours = toOptionalNumber(payload.sleepHours);
+  const waterIntakeMl = toOptionalNumber(payload.waterIntakeMl);
+  return {
+    moodTag: payload.moodTag?.trim() ?? null,
+    energyLevel: clamp(toOptionalNumber(payload.energyLevel), 1, 10),
+    stressLevel: clamp(toOptionalNumber(payload.stressLevel), 1, 10),
+    sleepHours: sleepHours !== null ? clamp(sleepHours, 0, 24) : null,
+    waterIntakeMl:
+      waterIntakeMl !== null ? clamp(waterIntakeMl, 0, 10000) : null,
+    activityMinutes: clamp(toOptionalNumber(payload.activityMinutes), 0, 1440),
+    weightKg: toOptionalNumber(payload.weightKg),
+    symptoms: Array.isArray(payload.symptoms) ? payload.symptoms : null,
+    entry,
+    aiReflection,
+  };
+};
 
 const isBlankReflection = (value) => !String(value ?? "").trim();
 
 const runDiaryFollowups = ({ profileId, diaryEntryId, entry, date }) => {
-  setImmediate(async () => {
+  (async () => {
     try {
       if (diaryEntryId && entry) {
         await prisma.diaryChunk.deleteMany({
@@ -96,7 +104,7 @@ const runDiaryFollowups = ({ profileId, diaryEntryId, entry, date }) => {
         message: error?.message ?? "Unknown diary follow-up error",
       });
     }
-  });
+  })();
 };
 
 const loadDiaryWithAccess = async (req, res, entryId) => {
@@ -138,6 +146,12 @@ export const registerDiaryRoutes = (app) => {
 
       if (!payload.entry?.trim()) {
         return res.status(400).json({ error: "entry is required" });
+      }
+
+      if (String(payload.entry).length > 10000) {
+        return res
+          .status(400)
+          .json({ error: "entry must be 10000 characters or fewer" });
       }
 
       const profile = await prisma.profile.findUnique({
@@ -241,6 +255,12 @@ export const registerDiaryRoutes = (app) => {
       const entry = String(payload.entry ?? "").trim();
       if (!entry) {
         return res.status(400).json({ error: "entry is required" });
+      }
+
+      if (entry.length > 10000) {
+        return res
+          .status(400)
+          .json({ error: "entry must be 10000 characters or fewer" });
       }
 
       let aiReflectionResult = null;

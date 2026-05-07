@@ -72,6 +72,7 @@ const buildProfileData = (payload = {}) => ({
   weightKg: payload.weightKg !== undefined ? Number(payload.weightKg) : null,
   activityLevel: payload.activityLevel?.trim() || null,
   healthGoal: payload.healthGoal?.trim() || null,
+  dietPattern: payload.dietPattern?.trim() || null,
   parentProfileId: payload.parentProfileId?.trim() || null,
   incomeAmount:
     payload.incomeAmount !== undefined ? Number(payload.incomeAmount) : null,

@@ -4,6 +4,7 @@ import { buildDashboardMetrics } from "../../services/wellness/analysis.service.
 import { generateWellnessSuggestions } from "../../services/ai/ai.service.js";
 import { taskRouteLimiter } from "../../middleware/security.middleware.js";
 import { requireProfileAccess } from "../../services/profile/profile-access.service.js";
+import { requireAuth } from "../../middleware/auth.middleware.js";
 
 const requireTaskId = (value) => {
   const text = String(value ?? "").trim();
@@ -42,6 +43,7 @@ export const registerTaskRoutes = (app) => {
 
   app.post(
     "/tasks",
+    requireAuth,
     taskRouteLimiter,
     asyncHandler(async (req, res) => {
       const payload = req.body ?? {};
@@ -52,6 +54,18 @@ export const registerTaskRoutes = (app) => {
         return res.status(400).json({ error: "title is required" });
       }
 
+      const taskProfile = await prisma.profile.findUnique({
+        where: { id: payload.profileId },
+        select: { id: true, role: true, parentProfileId: true },
+      });
+      if (!taskProfile) {
+        return res.status(404).json({ error: "Profile not found" });
+      }
+      const taskAccess = await requireProfileAccess(req, res, taskProfile);
+      if (!taskAccess.allowed) {
+        return;
+      }
+
       const task = await prisma.wellnessTask.create({
         data: {
           profileId: payload.profileId,
@@ -59,8 +73,8 @@ export const registerTaskRoutes = (app) => {
           reason: String(payload.reason ?? "").trim() || null,
           action: String(payload.action ?? "").trim() || null,
           category: String(payload.category ?? "").trim() || null,
-          priority: String(payload.priority ?? "Medium").trim(),
-          status: String(payload.status ?? "suggested").trim(),
+          priority: String(payload.priority ?? "Medium").trim() || "Medium",
+          status: String(payload.status ?? "suggested").trim() || "suggested",
           source: "manual",
           dueDate: payload.dueDate ? new Date(payload.dueDate) : null,
         },
@@ -153,20 +167,68 @@ export const registerTaskRoutes = (app) => {
 
   app.patch(
     "/tasks/:taskId",
+    requireAuth,
     taskRouteLimiter,
     asyncHandler(async (req, res) => {
       const taskId = requireTaskId(req.params.taskId);
+
+      const existingTask = await prisma.wellnessTask.findUnique({
+        where: { id: taskId },
+        select: { id: true, profileId: true },
+      });
+      if (!existingTask) {
+        return res.status(404).json({ error: "Task not found" });
+      }
+
+      const taskOwnerProfile = await prisma.profile.findUnique({
+        where: { id: existingTask.profileId },
+        select: { id: true, role: true, parentProfileId: true },
+      });
+      if (!taskOwnerProfile) {
+        return res.status(404).json({ error: "Task not found" });
+      }
+
+      const patchAccess = await requireProfileAccess(
+        req,
+        res,
+        taskOwnerProfile,
+      );
+      if (!patchAccess.allowed) {
+        return;
+      }
+
       const payload = req.body ?? {};
+
+      const patchTitle =
+        payload.title !== undefined ? String(payload.title).trim() : undefined;
+      if (patchTitle !== undefined && !patchTitle) {
+        return res.status(400).json({ error: "title cannot be empty" });
+      }
 
       const task = await prisma.wellnessTask.update({
         where: { id: taskId },
         data: {
-          title: payload.title?.trim(),
-          reason: payload.reason?.trim(),
-          action: payload.action?.trim(),
-          category: payload.category?.trim(),
-          priority: payload.priority?.trim(),
-          status: payload.status?.trim(),
+          title: patchTitle,
+          reason:
+            payload.reason !== undefined
+              ? String(payload.reason).trim() || null
+              : undefined,
+          action:
+            payload.action !== undefined
+              ? String(payload.action).trim() || null
+              : undefined,
+          category:
+            payload.category !== undefined
+              ? String(payload.category).trim() || null
+              : undefined,
+          priority:
+            payload.priority !== undefined
+              ? String(payload.priority).trim() || null
+              : undefined,
+          status:
+            payload.status !== undefined
+              ? String(payload.status).trim() || null
+              : undefined,
           dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
         },
       });
@@ -177,9 +239,36 @@ export const registerTaskRoutes = (app) => {
 
   app.delete(
     "/tasks/:taskId",
+    requireAuth,
     taskRouteLimiter,
     asyncHandler(async (req, res) => {
       const taskId = requireTaskId(req.params.taskId);
+
+      const taskToDelete = await prisma.wellnessTask.findUnique({
+        where: { id: taskId },
+        select: { id: true, profileId: true },
+      });
+      if (!taskToDelete) {
+        return res.status(404).json({ error: "Task not found" });
+      }
+
+      const deleteOwnerProfile = await prisma.profile.findUnique({
+        where: { id: taskToDelete.profileId },
+        select: { id: true, role: true, parentProfileId: true },
+      });
+      if (!deleteOwnerProfile) {
+        return res.status(404).json({ error: "Task not found" });
+      }
+
+      const deleteAccess = await requireProfileAccess(
+        req,
+        res,
+        deleteOwnerProfile,
+      );
+      if (!deleteAccess.allowed) {
+        return;
+      }
+
       await prisma.wellnessTask.delete({ where: { id: taskId } });
       res.status(204).end();
     }),

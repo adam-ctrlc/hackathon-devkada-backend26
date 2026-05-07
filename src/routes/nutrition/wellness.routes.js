@@ -174,6 +174,14 @@ export const registerWellnessRoutes = (app) => {
           .json({ error: "amountMl or glasses is required" });
       }
 
+      if (amountMl > 10000) {
+        return res
+          .status(400)
+          .json({
+            error: "amountMl cannot exceed 10000ml (10 liters) per log",
+          });
+      }
+
       const profile = await prisma.profile.findUnique({
         where: { id: payload.profileId },
         include: { healthContext: true },
@@ -259,6 +267,14 @@ export const registerWellnessRoutes = (app) => {
         return res
           .status(400)
           .json({ error: "valid water amount is required" });
+      }
+
+      if (amountMl > 10000) {
+        return res
+          .status(400)
+          .json({
+            error: "amountMl cannot exceed 10000ml (10 liters) per log",
+          });
       }
 
       const timing = resolveWaterTiming({

@@ -33,3 +33,4 @@ prisma/dev.db
 prisma/dev.db-*
 example/
 reference.docx
+.vercel

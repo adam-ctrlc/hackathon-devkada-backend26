@@ -1,6 +1,7 @@
 import { issueCsrfToken } from "../../middleware/security.middleware.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { createGeminiEphemeralToken } from "../../services/ai/gemini-live.service.js";
+import { requireAuth } from "../../middleware/auth.middleware.js";
 
 export const registerSecurityRoutes = (app) => {
   app.get("/security/csrf", issueCsrfToken);
@@ -20,6 +21,7 @@ export const registerSecurityRoutes = (app) => {
 
   app.post(
     "/gemini-token",
+    requireAuth,
     asyncHandler(async (req, res) => {
       const payload = req.body ?? {};
       const token = await createGeminiEphemeralToken({

@@ -124,6 +124,7 @@ export const getAuthProfileSelect = {
   weightKg: true,
   activityLevel: true,
   healthGoal: true,
+  dietPattern: true,
   diaryPinHash: true,
   parentProfileId: true,
   incomeAmount: true,

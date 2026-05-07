@@ -108,6 +108,7 @@ const profileSelect = {
   weightKg: true,
   activityLevel: true,
   healthGoal: true,
+  dietPattern: true,
   diaryPinHash: true,
   parentProfileId: true,
   incomeAmount: true,
@@ -156,6 +157,20 @@ export const registerProfileRoutes = (app) => {
         { label: "Last name", value: nameParts.lastName },
         { label: "Health goal", value: payload.healthGoal },
       ]);
+
+      const createParentId = payload.parentProfileId?.trim() || null;
+      if (createParentId) {
+        const parentExists = await prisma.profile.findUnique({
+          where: { id: createParentId },
+          select: { id: true },
+        });
+        if (!parentExists) {
+          return res
+            .status(400)
+            .json({ error: "parentProfileId does not exist" });
+        }
+      }
+
       const profile = await prisma.profile.create({
         data: {
           ...nameParts,
@@ -167,6 +182,7 @@ export const registerProfileRoutes = (app) => {
           weightKg: payload.weightKg ? Number(payload.weightKg) : null,
           activityLevel: payload.activityLevel?.trim() ?? null,
           healthGoal: payload.healthGoal?.trim() ?? null,
+          dietPattern: payload.dietPattern?.trim() ?? null,
           incomeAmount:
             payload.incomeAmount !== undefined
               ? Number(payload.incomeAmount)
@@ -179,7 +195,7 @@ export const registerProfileRoutes = (app) => {
               : null,
           budgetFrequency: payload.budgetFrequency?.trim() ?? null,
           budgetCurrency: normalizeCurrency(payload.budgetCurrency),
-          parentProfileId: payload.parentProfileId?.trim() || null,
+          parentProfileId: createParentId,
           allergies: Array.isArray(payload.allergies) ? payload.allergies : [],
           foodPreferences: Array.isArray(payload.foodPreferences)
             ? payload.foodPreferences
@@ -262,6 +278,27 @@ export const registerProfileRoutes = (app) => {
         { label: "Health goal", value: payload.healthGoal },
         { label: "Activity level", value: payload.activityLevel },
       ]);
+
+      if (payload.parentProfileId !== undefined) {
+        const newParentId = payload.parentProfileId?.trim() || null;
+        if (newParentId) {
+          if (newParentId === req.params.profileId) {
+            return res
+              .status(400)
+              .json({ error: "Profile cannot be its own parent" });
+          }
+          const parentExists = await prisma.profile.findUnique({
+            where: { id: newParentId },
+            select: { id: true },
+          });
+          if (!parentExists) {
+            return res
+              .status(400)
+              .json({ error: "parentProfileId does not exist" });
+          }
+        }
+      }
+
       const profile = await prisma.profile.update({
         where: { id: req.params.profileId },
         data: {
@@ -300,6 +337,7 @@ export const registerProfileRoutes = (app) => {
               : undefined,
           activityLevel: payload.activityLevel?.trim(),
           healthGoal: payload.healthGoal?.trim(),
+          dietPattern: payload.dietPattern?.trim(),
           incomeAmount:
             payload.incomeAmount !== undefined
               ? Number(payload.incomeAmount)

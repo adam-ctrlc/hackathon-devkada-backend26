@@ -47,6 +47,7 @@ model Profile {
   weightKg            Float?
   activityLevel       String?
   healthGoal          String?
+  dietPattern         String?
   diaryPinHash        String?
   parentProfileId     String?
   incomeAmount        Float?
