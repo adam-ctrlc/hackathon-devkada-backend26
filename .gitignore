@@ -34,3 +34,8 @@ prisma/dev.db-*
 example/
 reference.docx
 .vercel
+
+# Local scripts and judge guide (not for repo)
+scripts/
+KainWise-Judge-Guide.pdf
+KainWise-Judge-Guide.txt
