@@ -15,10 +15,7 @@ import { registerWellnessRoutes } from "./routes/nutrition/wellness.routes.js";
 import { registerSwapRoutes } from "./routes/nutrition/swaps.routes.js";
 import { registerFitnessRoutes } from "./routes/fitness/fitness.routes.js";
 import { env } from "./config/env.js";
-import {
-  globalRateLimiter,
-  csrfProtection,
-} from "./middleware/security.middleware.js";
+import { csrfProtection } from "./middleware/security.middleware.js";
 import {
   jwtContextMiddleware,
   requireDatabase,
@@ -60,7 +57,6 @@ export const createApp = () => {
   app.use(cookieParser());
   app.use(express.json({ limit: "1mb" }));
   app.use(jwtContextMiddleware);
-  app.use("/api/v1", globalRateLimiter);
 
   registerSecurityRoutes(api);
   registerAuthRoutes(api);
