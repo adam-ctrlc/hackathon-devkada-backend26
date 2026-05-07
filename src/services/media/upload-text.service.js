@@ -1,5 +1,4 @@
 import { fileTypeFromBuffer } from "file-type";
-import { PDFParse } from "pdf-parse";
 import { extractRawText } from "mammoth";
 import { extractTextFromImage } from "./ocr.service.js";
 import {
@@ -34,6 +33,7 @@ export const extractTextFromUpload = async ({ buffer, mimetype }) => {
       return threatCheck.allowed ? { kind: "image", mime, text } : null;
     }
     case mime === "application/pdf": {
+      const { PDFParse } = await import("pdf-parse");
       const parser = new PDFParse({ data: buffer });
       const result = await parser.getText();
       const text = String(result?.text ?? "").trim();
