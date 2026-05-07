@@ -38,7 +38,7 @@ const csrfHeaderName = env.csrfHeaderName;
 
 const getCookieOptions = () => ({
   httpOnly: true,
-  sameSite: "lax",
+  sameSite: env.nodeEnv === "production" ? "none" : "lax",
   secure: env.nodeEnv === "production",
   path: "/",
 });
