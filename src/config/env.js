@@ -25,7 +25,11 @@ export const env = {
     [process.env.FRONTEND_ORIGIN, process.env.CORS_ORIGINS]
       .filter(Boolean)
       .join(","),
-    ["http://localhost:5173", "http://127.0.0.1:5173"],
+    [
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+      "https://kainwise.vercel.app",
+    ],
   ),
   geminiApiKey: process.env.GEMINI_API_KEY ?? "",
   geminiLiveModel:
