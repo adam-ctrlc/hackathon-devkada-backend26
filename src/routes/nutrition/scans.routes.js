@@ -831,6 +831,74 @@ export const registerScanRoutes = (app) => {
     }),
   );
 
+  app.post(
+    "/scans/:scanId/image",
+    uploadRouteLimiter,
+    upload.single("image"),
+    asyncHandler(async (req, res) => {
+      if (!req.file?.buffer?.length) {
+        return res.status(400).json({ error: "image is required" });
+      }
+
+      if (!isAllowedUploadType(req.file.mimetype)) {
+        return res.status(415).json({ error: "Unsupported file type" });
+      }
+
+      const scan = await prisma.foodScan.findUnique({
+        where: { id: req.params.scanId },
+        include: {
+          profile: true,
+        },
+      });
+
+      if (!scan) {
+        return res.status(404).json({ error: "Scan not found" });
+      }
+
+      const access = await requireProfileAccess(req, res, scan.profile);
+      if (!access.allowed) {
+        return;
+      }
+
+      let mediaAsset = null;
+      try {
+        mediaAsset = await uploadMediaToImageKit({
+          buffer: req.file.buffer,
+          originalName: req.file.originalname,
+          fallbackName: `scan-${scan.profileId}`,
+          mimetype: req.file.mimetype,
+          folder: buildImageKitFolder({
+            profile: scan.profile,
+            fileType: "scans-images",
+          }),
+          tags: ["scan", "upload"],
+        });
+      } catch (error) {
+        console.warn("imagekit.upload.scan.attach.failed", {
+          scanId: scan.id,
+          message: error?.message,
+        });
+        return res.status(502).json({ error: "Image upload failed" });
+      }
+
+      if (!mediaAsset) {
+        return res.status(502).json({ error: "Image upload failed" });
+      }
+
+      const updated = await prisma.foodScan.update({
+        where: { id: scan.id },
+        data: {
+          imageUrl: mediaAsset.url,
+          imageThumbnailUrl: mediaAsset.thumbnailUrl,
+          imageFileId: mediaAsset.fileId,
+          imageFilePath: mediaAsset.filePath,
+        },
+      });
+
+      res.json({ scan: updated, mediaAsset });
+    }),
+  );
+
   app.delete(
     "/scans/:scanId",
     asyncHandler(async (req, res) => {
