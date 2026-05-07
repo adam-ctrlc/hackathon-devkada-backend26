@@ -10,7 +10,13 @@ importers:
       "@google/genai":
         specifier: ^1.51.0
         version: 1.51.0
+      "@neondatabase/serverless":
+        specifier: ^1.1.0
+        version: 1.1.0
       "@prisma/adapter-better-sqlite3":
+        specifier: ^7.8.0
+        version: 7.8.0
+      "@prisma/adapter-neon":
         specifier: ^7.8.0
         version: 7.8.0
       "@prisma/client":
@@ -52,12 +58,18 @@ importers:
       multer:
         specifier: ^2.1.1
         version: 2.1.1
+      nodemailer:
+        specifier: ^8.0.7
+        version: 8.0.7
       pdf-parse:
         specifier: ^2.4.5
         version: 2.4.5
       tesseract.js:
         specifier: ^7.0.0
         version: 7.0.0
+      ws:
+        specifier: ^8.20.0
+        version: 8.20.0
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -231,10 +243,23 @@ packages:
       }
     engines: { node: ">= 10" }
 
+  "@neondatabase/serverless@1.1.0":
+    resolution:
+      {
+        integrity: sha512-r3ZZhRjEcfEdKIZnoB1RusNgvHuaBRqfCzV4Gi+5A9yUX0S4HTws/ASWqt13wL4y4I+0rqsWGdA2w7EQXHi3+Q==,
+      }
+    engines: { node: ">=19.0.0" }
+
   "@prisma/adapter-better-sqlite3@7.8.0":
     resolution:
       {
         integrity: sha512-9p0HvQNaRoOaUForDcp1MPIjylmCamYQjQpEogpdesLr14g3NwAsYR3bHL9wFi8tn21TPDVQPzcZi+SxXEokSA==,
+      }
+
+  "@prisma/adapter-neon@7.8.0":
+    resolution:
+      {
+        integrity: sha512-9MoOjRuY53sQNyji87u1NivsK0tIacoUE3PqTxdG95b7ORn1pzwribH2z83j4Vh3eb9nQ/UC+MTfVW7jCFnXlA==,
       }
 
   "@prisma/client-runtime-utils@7.8.0":
@@ -1786,6 +1811,13 @@ packages:
       }
     engines: { node: ^12.20.0 || ^14.13.1 || >=16.0.0 }
 
+  nodemailer@8.0.7:
+    resolution:
+      {
+        integrity: sha512-pkjE4mkBzQjdJT4/UmlKl3pX0rC9fZmjh7c6C9o7lv66Ac6w9WCnzPzhbPNxwZAzlF4mdq4CSWB5+FbK6FWCow==,
+      }
+    engines: { node: ">=6.0.0" }
+
   nodemon@3.1.14:
     resolution:
       {
@@ -1919,6 +1951,13 @@ packages:
       {
         integrity: sha512-y+ichcgc2LrADuhLNAx8DFjVfgz91pRxfZdI3UDhxHvcVEZsenLO+7XaU5vOp0u/7V/wZ+plyuQxtrDlZJ+yeg==,
       }
+
+  postgres-array@3.0.4:
+    resolution:
+      {
+        integrity: sha512-nAUSGfSDGOaOAEGwqsRY27GPOea7CNipJPOA7lPbdEpx5Kg3qzdP0AaWC5MlhTWV9s4hFX39nomVZ+C4tnGOJQ==,
+      }
+    engines: { node: ">=12" }
 
   postgres@3.4.7:
     resolution:
@@ -2638,10 +2677,18 @@ snapshots:
       "@napi-rs/canvas-linux-x64-musl": 0.1.80
       "@napi-rs/canvas-win32-x64-msvc": 0.1.80
 
+  "@neondatabase/serverless@1.1.0": {}
+
   "@prisma/adapter-better-sqlite3@7.8.0":
     dependencies:
       "@prisma/driver-adapter-utils": 7.8.0
       better-sqlite3: 12.9.0
+
+  "@prisma/adapter-neon@7.8.0":
+    dependencies:
+      "@neondatabase/serverless": 1.1.0
+      "@prisma/driver-adapter-utils": 7.8.0
+      postgres-array: 3.0.4
 
   "@prisma/client-runtime-utils@7.8.0": {}
 
@@ -3540,6 +3587,8 @@ snapshots:
       fetch-blob: 3.2.0
       formdata-polyfill: 4.0.10
 
+  nodemailer@8.0.7: {}
+
   nodemon@3.1.14:
     dependencies:
       chokidar: 3.6.0
@@ -3606,6 +3655,8 @@ snapshots:
       confbox: 0.2.4
       exsolve: 1.0.8
       pathe: 2.0.3
+
+  postgres-array@3.0.4: {}
 
   postgres@3.4.7: {}
 

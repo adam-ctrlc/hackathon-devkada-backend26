@@ -21,10 +21,12 @@ export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   port: toNumber(process.env.PORT, 3000),
   databaseUrl: process.env.DATABASE_URL ?? "file:./prisma/dev.db",
-  corsOrigins: toList(process.env.CORS_ORIGINS ?? process.env.FRONTEND_ORIGIN, [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-  ]),
+  corsOrigins: toList(
+    [process.env.FRONTEND_ORIGIN, process.env.CORS_ORIGINS]
+      .filter(Boolean)
+      .join(","),
+    ["http://localhost:5173", "http://127.0.0.1:5173"],
+  ),
   geminiApiKey: process.env.GEMINI_API_KEY ?? "",
   geminiLiveModel:
     process.env.GEMINI_LIVE_MODEL ?? "gemini-3.1-flash-live-preview",
@@ -74,4 +76,9 @@ export const env = {
   rateLimitTaskMax: toNumber(process.env.RATE_LIMIT_TASK_MAX, 15),
   csrfCookieName: process.env.CSRF_COOKIE_NAME ?? "kainwise_csrf_secret",
   csrfHeaderName: process.env.CSRF_HEADER_NAME ?? "x-csrf-token",
+  brevoSmtp: process.env.BREVO_SMTP ?? "",
+  brevoSenderEmail: process.env.BREVO_SENDER_EMAIL ?? "",
+  brevoSmtpUser:
+    process.env.BREVO_SMTP_USER ?? process.env.BREVO_SENDER_EMAIL ?? "",
+  brevoApiKey: process.env.BREVO_API_KEY ?? "",
 };

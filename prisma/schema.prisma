@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 enum AccountRole {
@@ -31,9 +31,12 @@ model Profile {
   username            String?                  @unique
   passwordHash        String?
   refreshTokenHash    String?
-  resetTokenHash      String?
-  resetTokenExpiresAt DateTime?
-  lastLoginAt         DateTime?
+  resetTokenHash        String?
+  resetTokenExpiresAt   DateTime?
+  emailVerified         Boolean   @default(true)
+  emailVerifyCode       String?
+  emailVerifyExpiresAt  DateTime?
+  lastLoginAt           DateTime?
   firstName           String
   middleName          String?
   lastName            String

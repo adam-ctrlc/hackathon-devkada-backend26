@@ -24,6 +24,11 @@ import {
 } from "../../middleware/security.middleware.js";
 import { requireProfileAccess } from "../../services/profile/profile-access.service.js";
 import { inferFoodType } from "../../services/nutrition/meal-knowledge.service.js";
+import { resolveMealTiming } from "../../utils/meal-timing.js";
+import {
+  toNullableNumber,
+  normalizeNutritionFields,
+} from "../../utils/nutrition.js";
 
 const allowedMimeTypes = new Set([
   "image/jpeg",
@@ -38,15 +43,6 @@ const allowedMimeTypes = new Set([
 
 const isAllowedUploadType = (mime) =>
   allowedMimeTypes.has(String(mime ?? "").toLowerCase());
-
-const toNullableNumber = (value) => {
-  if (value === undefined || value === null || value === "") {
-    return null;
-  }
-
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
-};
 
 const getScannerInsights = (scan = {}) =>
   scan?.aiAnalysis &&
@@ -93,23 +89,6 @@ const normalizeScannerInsights = (value = {}) => {
       motivation: String(mentalSupport.motivation ?? "").trim(),
     },
   };
-};
-
-const resolveMealTiming = (payload = {}) => {
-  const eatenAt = payload.eatenAt ? new Date(payload.eatenAt) : new Date();
-  const safeEatenAt = Number.isNaN(eatenAt.getTime()) ? new Date() : eatenAt;
-  const hour = safeEatenAt.getHours();
-  const inferred =
-    hour < 5
-      ? "midnight"
-      : hour < 11
-        ? "morning"
-        : hour < 15
-          ? "afternoon"
-          : hour < 19
-            ? "evening"
-            : "night";
-  return { eatenAt: safeEatenAt, mealPeriod: inferred };
 };
 
 const normalizeBarcodeValue = (value) =>
@@ -489,12 +468,7 @@ export const registerScanRoutes = (app) => {
           ),
           estimatedPriceCurrency:
             profile.budgetCurrency ?? profile.incomeCurrency ?? "PHP",
-          calories: toNullableNumber(nutrition.calories),
-          sugarGrams: toNullableNumber(nutrition.sugarGrams),
-          sodiumMg: toNullableNumber(nutrition.sodiumMg),
-          fatGrams: toNullableNumber(nutrition.fatGrams),
-          proteinGrams: toNullableNumber(nutrition.proteinGrams),
-          fiberGrams: toNullableNumber(nutrition.fiberGrams),
+          ...normalizeNutritionFields(nutrition),
           score: Number.isFinite(Number(analysis.score))
             ? Number(analysis.score)
             : result.score,
@@ -596,12 +570,7 @@ export const registerScanRoutes = (app) => {
             profile.budgetCurrency ??
             profile.incomeCurrency ??
             "PHP",
-          calories: toNullableNumber(nutrition.calories),
-          sugarGrams: toNullableNumber(nutrition.sugarGrams),
-          sodiumMg: toNullableNumber(nutrition.sodiumMg),
-          fatGrams: toNullableNumber(nutrition.fatGrams),
-          proteinGrams: toNullableNumber(nutrition.proteinGrams),
-          fiberGrams: toNullableNumber(nutrition.fiberGrams),
+          ...normalizeNutritionFields(nutrition),
           score: result.score,
           supportLevel: analysis.supportLevel ?? result.supportLevel,
           wellnessImpact:

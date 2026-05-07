@@ -4,15 +4,15 @@ import { connectDatabase } from "./src/lib/prisma.js";
 
 const app = createApp();
 
-const start = async () => {
-  await connectDatabase();
+connectDatabase().catch((error) => {
+  console.error("Failed to connect to database:", error);
+  if (process.env.NODE_ENV !== "production") process.exit(1);
+});
 
+if (process.env.NODE_ENV !== "production") {
   app.listen(env.port, () => {
     console.log(`KainWise API listening on http://localhost:${env.port}`);
   });
-};
+}
 
-start().catch((error) => {
-  console.error("Failed to start API server:", error);
-  process.exit(1);
-});
+export default app;

@@ -66,6 +66,19 @@ export const authRefreshBodySchema = z.object({
   refreshToken: z.string().trim().min(1, "Refresh token is required"),
 });
 
+export const emailVerifyBodySchema = z
+  .object({
+    email: z.string().trim().email("Enter a valid email address"),
+    code: z.string().trim().min(1, "Verification code is required"),
+  })
+  .passthrough();
+
+export const emailResendVerifyBodySchema = z
+  .object({
+    email: z.string().trim().email("Enter a valid email address"),
+  })
+  .passthrough();
+
 export const passwordResetRequestBodySchema = z
   .object({
     email: z.string().trim().email("Enter a valid email address"),

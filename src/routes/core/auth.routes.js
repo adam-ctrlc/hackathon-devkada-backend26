@@ -3,6 +3,7 @@ import { asyncHandler } from "../../utils/async-handler.js";
 import { authlessWriteLimiter } from "../../middleware/security.middleware.js";
 import { rejectIfHoneypotHit } from "../../services/auth/honeypot.service.js";
 import {
+  generateEmailVerifyCode,
   getAuthProfileSelect,
   hashPassword,
   hashToken,
@@ -17,11 +18,17 @@ import {
   verifyResetToken,
 } from "../../services/auth/auth.service.js";
 import { requireTurnstileVerification } from "../../services/auth/turnstile.service.js";
+import {
+  sendEmailVerificationEmail,
+  sendPasswordResetEmail,
+} from "../../services/auth/email.service.js";
 import { validateBody } from "../../validation/validate.js";
 import {
   authLoginBodySchema,
   authRefreshBodySchema,
   authRegisterBodySchema,
+  emailVerifyBodySchema,
+  emailResendVerifyBodySchema,
   passwordResetConfirmBodySchema,
   passwordResetRequestBodySchema,
 } from "../../validation/core/auth.schema.js";
@@ -112,35 +119,149 @@ export const registerAuthRoutes = (app) => {
       const username = normalizeAuthUsername(payload.username);
       const password = payload.password;
 
-      const existing = await prisma.profile.findFirst({
-        where: {
-          OR: [{ email }, { username }],
-        },
-        select: { id: true },
-      });
+      const [emailOwner, usernameOwner] = await Promise.all([
+        prisma.profile.findFirst({
+          where: { email },
+          select: { id: true, emailVerified: true },
+        }),
+        prisma.profile.findFirst({
+          where: { username },
+          select: { id: true, email: true, emailVerified: true },
+        }),
+      ]);
 
-      if (existing) {
-        return res
-          .status(409)
-          .json({ error: "Email or username already in use" });
+      if (emailOwner?.emailVerified) {
+        return res.status(409).json({ error: "Email is already in use" });
       }
 
-      const profile = await prisma.profile.create({
+      if (
+        usernameOwner &&
+        usernameOwner.email !== email &&
+        (usernameOwner.emailVerified || !emailOwner)
+      ) {
+        return res.status(409).json({ error: "Username is already in use" });
+      }
+
+      const verifyCode = generateEmailVerifyCode();
+      const verifyExpiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+      const profileData = {
+        ...buildProfileData(payload),
+        email,
+        passwordHash: await hashPassword(password),
+        emailVerified: false,
+        emailVerifyCode: hashToken(verifyCode),
+        emailVerifyExpiresAt: verifyExpiresAt,
+      };
+
+      const profile = emailOwner
+        ? await prisma.profile.update({
+            where: { id: emailOwner.id },
+            data: profileData,
+            select: getAuthProfileSelect,
+          })
+        : await prisma.profile.create({
+            data: profileData,
+            select: getAuthProfileSelect,
+          });
+
+      sendEmailVerificationEmail({
+        toEmail: email,
+        code: verifyCode,
+        firstName: profile.firstName,
+      }).catch((err) => {
+        console.error("[email] verification send failed:", err);
+      });
+
+      res.status(201).json({ requiresVerification: true, email });
+    }),
+  );
+
+  app.post(
+    "/auth/verify-email",
+    authlessWriteLimiter,
+    asyncHandler(async (req, res) => {
+      const payload = validateBody(emailVerifyBodySchema, req.body ?? {});
+      const email = normalizeAuthEmail(payload.email);
+      const codeHash = hashToken(payload.code.trim());
+
+      const profile = await prisma.profile.findFirst({
+        where: { email },
+        select: getAuthProfileSelect,
+      });
+
+      if (!profile) {
+        return res.status(404).json({ error: "Account not found" });
+      }
+
+      if (profile.emailVerified) {
+        return res.status(409).json({ error: "Email is already verified" });
+      }
+
+      if (
+        profile.emailVerifyCode !== codeHash ||
+        !profile.emailVerifyExpiresAt ||
+        new Date() > profile.emailVerifyExpiresAt
+      ) {
+        return res
+          .status(400)
+          .json({ error: "Invalid or expired verification code" });
+      }
+
+      const verified = await prisma.profile.update({
+        where: { id: profile.id },
         data: {
-          ...buildProfileData(payload),
-          email,
-          passwordHash: await hashPassword(password),
+          emailVerified: true,
+          emailVerifyCode: null,
+          emailVerifyExpiresAt: null,
+          lastLoginAt: new Date(),
         },
         select: getAuthProfileSelect,
       });
 
-      const tokens = issueAuthTokens({ profile });
-      await setRefreshToken(profile.id, tokens.refreshToken);
+      const tokens = issueAuthTokens({ profile: verified });
+      await setRefreshToken(verified.id, tokens.refreshToken);
 
-      res.status(201).json({
-        profile: sanitizeAuthProfile(profile),
-        tokens,
+      res.json({ profile: sanitizeAuthProfile(verified), tokens });
+    }),
+  );
+
+  app.post(
+    "/auth/resend-verify",
+    authlessWriteLimiter,
+    asyncHandler(async (req, res) => {
+      const payload = validateBody(emailResendVerifyBodySchema, req.body ?? {});
+      const email = normalizeAuthEmail(payload.email);
+
+      const profile = await prisma.profile.findFirst({
+        where: { email },
+        select: { id: true, email: true, firstName: true, emailVerified: true },
       });
+
+      if (!profile || profile.emailVerified) {
+        return res.json({ ok: true });
+      }
+
+      const verifyCode = generateEmailVerifyCode();
+      const verifyExpiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+      await prisma.profile.update({
+        where: { id: profile.id },
+        data: {
+          emailVerifyCode: hashToken(verifyCode),
+          emailVerifyExpiresAt: verifyExpiresAt,
+        },
+      });
+
+      sendEmailVerificationEmail({
+        toEmail: email,
+        code: verifyCode,
+        firstName: profile.firstName,
+      }).catch((err) => {
+        console.error("[email] verification send failed:", err);
+      });
+
+      res.json({ ok: true });
     }),
   );
 
@@ -171,6 +292,14 @@ export const registerAuthRoutes = (app) => {
         return res
           .status(401)
           .json({ error: "Invalid email/username or password" });
+      }
+
+      if (!profile.emailVerified) {
+        return res.status(403).json({
+          error: "Please verify your email before signing in",
+          code: "EMAIL_NOT_VERIFIED",
+          email: profile.email,
+        });
       }
 
       const tokens = issueAuthTokens({ profile });
@@ -249,11 +378,15 @@ export const registerAuthRoutes = (app) => {
         },
       });
 
-      res.json({
-        ok: true,
+      sendPasswordResetEmail({
+        toEmail: profile.email,
         resetToken: reset.resetToken,
-        resetTokenExpiresIn: reset.resetTokenExpiresIn,
-      });
+        firstName: profile.firstName,
+      }).catch((err) =>
+        console.error("[email] Failed to send reset email:", err.message),
+      );
+
+      res.json({ ok: true });
     }),
   );
 

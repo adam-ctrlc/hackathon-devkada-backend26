@@ -1,17 +1,23 @@
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import "dotenv/config";
+import { neonConfig } from "@neondatabase/serverless";
+import { PrismaNeon } from "@prisma/adapter-neon";
 import prismaClientPkg from "@prisma/client";
+import ws from "ws";
+
+neonConfig.webSocketConstructor = ws;
 
 const { PrismaClient } = prismaClientPkg;
 
 const globalForPrisma = globalThis;
 
-const databaseUrl = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
-
-const createPrismaClient = () =>
-  new PrismaClient({
-    adapter: new PrismaBetterSqlite3({ url: databaseUrl }),
+const createPrismaClient = () => {
+  const connectionString = process.env.DATABASE_URL;
+  const adapter = new PrismaNeon({ connectionString });
+  return new PrismaClient({
+    adapter,
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
   });
+};
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
@@ -23,32 +29,27 @@ export let dbConnected = false;
 let shutdownHandlersRegistered = false;
 
 const registerShutdownHandlers = () => {
-  if (shutdownHandlersRegistered) {
-    return;
-  }
-
+  if (shutdownHandlersRegistered) return;
   shutdownHandlersRegistered = true;
-
   const shutdown = async () => {
     await prisma.$disconnect();
   };
-
   process.once("SIGINT", shutdown);
   process.once("SIGTERM", shutdown);
 };
 
 export const connectDatabase = async () => {
   registerShutdownHandlers();
-
   try {
     await prisma.$connect();
     dbConnected = true;
-    console.log(`Database connected: ${databaseUrl}`);
+    const url = process.env.DATABASE_URL ?? "";
+    console.log(
+      `Database connected: ${url.split("@").pop()?.split("?")[0] ?? "neon"}`,
+    );
   } catch (error) {
     dbConnected = false;
-    console.error(
-      `Failed to connect to database at ${databaseUrl}: ${error.message}`,
-    );
+    console.error(`Failed to connect to database: ${error.message}`);
     throw error;
   }
 };

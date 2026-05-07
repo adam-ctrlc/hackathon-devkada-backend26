@@ -39,10 +39,17 @@ export const verifyTurnstileToken = async ({ token, remoteIp } = {}) => {
     body.set("remoteip", safeTrim(remoteIp));
   }
 
-  const response = await fetch(TURNSTILE_VERIFY_URL, {
-    method: "POST",
-    body,
-  });
+  let response;
+  try {
+    response = await fetch(TURNSTILE_VERIFY_URL, {
+      method: "POST",
+      body,
+      signal: AbortSignal.timeout(8000),
+    });
+  } catch {
+    // Cloudflare unreachable (network error, timeout) — fail open
+    return { enabled: true, verified: true, skipped: true };
+  }
 
   if (!response.ok) {
     throw createError("Turnstile verification service unavailable", 502);

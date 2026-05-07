@@ -25,6 +25,9 @@ const requireSecret = (value, name) => {
   return secret;
 };
 
+export const generateEmailVerifyCode = () =>
+  crypto.randomInt(100000, 999999).toString();
+
 export const hashPassword = async (password) =>
   bcrypt.hash(String(password), 10);
 
@@ -107,6 +110,9 @@ export const getAuthProfileSelect = {
   refreshTokenHash: true,
   resetTokenHash: true,
   resetTokenExpiresAt: true,
+  emailVerified: true,
+  emailVerifyCode: true,
+  emailVerifyExpiresAt: true,
   lastLoginAt: true,
   role: true,
   firstName: true,
@@ -144,6 +150,8 @@ export const sanitizeAuthProfile = (profile) => {
     refreshTokenHash,
     resetTokenHash,
     resetTokenExpiresAt,
+    emailVerifyCode,
+    emailVerifyExpiresAt,
     ...safeProfile
   } = profile;
 
