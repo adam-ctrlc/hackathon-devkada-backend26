@@ -175,11 +175,9 @@ export const registerWellnessRoutes = (app) => {
       }
 
       if (amountMl > 10000) {
-        return res
-          .status(400)
-          .json({
-            error: "amountMl cannot exceed 10000ml (10 liters) per log",
-          });
+        return res.status(400).json({
+          error: "amountMl cannot exceed 10000ml (10 liters) per log",
+        });
       }
 
       const profile = await prisma.profile.findUnique({
@@ -270,11 +268,9 @@ export const registerWellnessRoutes = (app) => {
       }
 
       if (amountMl > 10000) {
-        return res
-          .status(400)
-          .json({
-            error: "amountMl cannot exceed 10000ml (10 liters) per log",
-          });
+        return res.status(400).json({
+          error: "amountMl cannot exceed 10000ml (10 liters) per log",
+        });
       }
 
       const timing = resolveWaterTiming({
