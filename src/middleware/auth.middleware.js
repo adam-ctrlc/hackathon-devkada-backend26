@@ -16,7 +16,7 @@ const getBearerToken = (req) => {
 const loadAuthProfile = async (profileId) =>
   prisma.profile.findUnique({
     where: { id: profileId },
-    select: { id: true, role: true, email: true },
+    select: { id: true, role: true, email: true, username: true },
   });
 
 export const jwtContextMiddleware = async (req, res, next) => {

@@ -1,7 +1,11 @@
 import { prisma } from "../../lib/prisma.js";
 import { asyncHandler } from "../../utils/async-handler.js";
+import { startOfDay } from "../../utils/date.js";
 import { requireProfileAccess } from "../../services/profile/profile-access.service.js";
-import { generateWorkoutSuggestions } from "../../services/ai/ai.service.js";
+import {
+  generateWorkoutLogOverview,
+  generateWorkoutSuggestions,
+} from "../../services/ai/ai.service.js";
 import {
   buildWgerWorkoutSuggestions,
   listWgerEquipment,
@@ -31,6 +35,67 @@ const parseBoolean = (value) => {
     .trim()
     .toLowerCase();
   return ["1", "true", "yes", "y", "on"].includes(text);
+};
+
+const serializeWorkoutSuggestion = (item, cached = false) => ({
+  source: item.source,
+  headline: item.headline ?? "Workout ideas",
+  sessionNote:
+    item.sessionNote ?? "Pick one session that matches your energy today.",
+  workouts: item.workouts ?? [],
+  calendarNote: item.calendarNote ?? "Try one session this week.",
+  profileSignals: item.profileSignals ?? [],
+  cached,
+  date: item.date,
+  updatedAt: item.updatedAt,
+});
+
+const getDailyWorkoutSuggestion = async ({
+  profile,
+  maxMinutes,
+  equipment,
+  source,
+}) => {
+  const date = startOfDay(new Date());
+  const cached = await prisma.workoutSuggestionCache.findUnique({
+    where: { profileId_date: { profileId: profile.id, date } },
+  });
+
+  if (cached) {
+    return serializeWorkoutSuggestion(cached, true);
+  }
+
+  const generated = await generateWorkoutSuggestions({
+    profile,
+    healthContext: profile.healthContext,
+    maxMinutes,
+    equipment,
+    source,
+  });
+
+  const saved = await prisma.workoutSuggestionCache.upsert({
+    where: { profileId_date: { profileId: profile.id, date } },
+    update: {
+      source: generated.source ?? "gemini",
+      headline: generated.headline ?? null,
+      sessionNote: generated.sessionNote ?? null,
+      workouts: generated.workouts ?? [],
+      calendarNote: generated.calendarNote ?? null,
+      profileSignals: generated.profileSignals ?? [],
+    },
+    create: {
+      profileId: profile.id,
+      date,
+      source: generated.source ?? "gemini",
+      headline: generated.headline ?? null,
+      sessionNote: generated.sessionNote ?? null,
+      workouts: generated.workouts ?? [],
+      calendarNote: generated.calendarNote ?? null,
+      profileSignals: generated.profileSignals ?? [],
+    },
+  });
+
+  return serializeWorkoutSuggestion(saved, false);
 };
 
 export const registerFitnessRoutes = (app) => {
@@ -128,13 +193,13 @@ export const registerFitnessRoutes = (app) => {
           ? req.query.equipment
           : [];
 
+      const maxMinutes = Number(
+        req.body?.maxMinutes ?? req.query.maxMinutes ?? 45,
+      );
       const suggestion = wantsGemini
-        ? await generateWorkoutSuggestions({
+        ? await getDailyWorkoutSuggestion({
             profile,
-            healthContext: profile.healthContext,
-            maxMinutes: Number(
-              req.body?.maxMinutes ?? req.query.maxMinutes ?? 45,
-            ),
+            maxMinutes,
             equipment,
             source: String(req.body?.source ?? req.query.source ?? "gemini"),
           })
@@ -226,26 +291,37 @@ export const registerFitnessRoutes = (app) => {
           .json({ error: "durationMinutes or durationHours is required" });
       }
 
+      const workoutDraft = {
+        title: workoutName,
+        workoutType: String(payload.workoutType ?? "").trim() || null,
+        source: String(payload.source ?? "manual").trim() || "manual",
+        durationMinutes: resolvedMinutes,
+        durationHours:
+          Number.isFinite(durationHours) && durationHours > 0
+            ? durationHours
+            : resolvedMinutes / 60,
+        caloriesBurned: Number.isFinite(Number(payload.caloriesBurned))
+          ? Number(payload.caloriesBurned)
+          : null,
+        distanceKm: Number.isFinite(Number(payload.distanceKm))
+          ? Number(payload.distanceKm)
+          : null,
+        intensity: String(payload.intensity ?? "").trim() || null,
+        notes: payload.notes ?? null,
+      };
+      const aiAnalysis =
+        payload.aiAnalysis ??
+        (await generateWorkoutLogOverview({
+          profile,
+          healthContext: profile.healthContext,
+          workout: workoutDraft,
+        }));
+
       const workoutLog = await prisma.workoutLog.create({
         data: {
           profileId: payload.profileId,
-          title: workoutName,
-          workoutType: String(payload.workoutType ?? "").trim() || null,
-          source: String(payload.source ?? "manual").trim() || "manual",
-          durationMinutes: resolvedMinutes,
-          durationHours:
-            Number.isFinite(durationHours) && durationHours > 0
-              ? durationHours
-              : resolvedMinutes / 60,
-          caloriesBurned: Number.isFinite(Number(payload.caloriesBurned))
-            ? Number(payload.caloriesBurned)
-            : null,
-          distanceKm: Number.isFinite(Number(payload.distanceKm))
-            ? Number(payload.distanceKm)
-            : null,
-          intensity: String(payload.intensity ?? "").trim() || null,
-          notes: payload.notes ?? null,
-          aiAnalysis: payload.aiAnalysis ?? null,
+          ...workoutDraft,
+          aiAnalysis,
         },
       });
 

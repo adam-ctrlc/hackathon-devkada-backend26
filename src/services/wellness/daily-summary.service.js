@@ -4,11 +4,15 @@ import { summarizeDay } from "./wellness.service.js";
 import { buildDashboardMetrics } from "./analysis.service.js";
 import { generateWellnessSuggestions } from "../ai/ai.service.js";
 
-export const refreshDailySummary = async (profileId, date = new Date()) => {
+export const refreshDailySummary = async (
+  profileId,
+  date = new Date(),
+  { skipAi = false } = {},
+) => {
   const dayStart = startOfDay(date);
   const dayEnd = endOfDay(date);
 
-  const [scans, mealLogs, diaries, profile] = await Promise.all([
+  const [scans, mealLogs, diaries, waterLogs, profile] = await Promise.all([
     prisma.foodScan.findMany({
       where: { profileId, createdAt: { gte: dayStart, lte: dayEnd } },
       orderBy: { createdAt: "desc" },
@@ -56,14 +60,21 @@ export const refreshDailySummary = async (profileId, date = new Date()) => {
     waterLogs,
   });
   const aiSummary = summarizeDay({ scans, diaries, profile });
-  const aiSuggestions = await generateWellnessSuggestions({
-    profile,
-    healthContext: profile.healthContext,
-    metrics: dashboardMetrics,
-    scans: foodEntries,
-    diaries,
-    summaries: [],
-  });
+  const aiSuggestions = skipAi
+    ? {
+        headline: aiSummary.headline,
+        calendarNote: aiSummary.calendarNote,
+        profileSignals: [],
+        suggestions: [],
+      }
+    : await generateWellnessSuggestions({
+        profile,
+        healthContext: profile.healthContext,
+        metrics: dashboardMetrics,
+        scans: foodEntries,
+        diaries,
+        summaries: [],
+      });
 
   return prisma.dailySummary.upsert({
     where: { profileId_date: { profileId, date: dayStart } },

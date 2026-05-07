@@ -2,6 +2,31 @@ import { env } from "../../config/env.js";
 import { buildPrompt } from "./ai-prompts.service.js";
 import { GoogleGenAI, Modality } from "@google/genai";
 
+const logPreviewLimit = 3000;
+
+const previewValue = (value, limit = logPreviewLimit) => {
+  try {
+    const text =
+      typeof value === "string" ? value : JSON.stringify(value, null, 2);
+    if (!text) {
+      return "";
+    }
+
+    return text.length > limit
+      ? `${text.slice(0, limit)}... [truncated ${text.length - limit} chars]`
+      : text;
+  } catch {
+    return "[unserializable]";
+  }
+};
+
+const logGemini = (event, details = {}) => {
+  console.log(`gemini.${event}`, {
+    at: new Date().toISOString(),
+    ...details,
+  });
+};
+
 const normalizeText = (value) =>
   String(value ?? "")
     .trim()
@@ -241,7 +266,68 @@ const extractFirstJsonValue = (text) => {
   return source;
 };
 
+const runStandardGemini = async ({ kind, payload, options = {} }) => {
+  const startedAt = Date.now();
+  const client = new GoogleGenAI({ apiKey: env.geminiApiKey });
+
+  const parts = [];
+  if (options.image?.data && options.image?.mimeType) {
+    parts.push({
+      inlineData: {
+        mimeType: options.image.mimeType,
+        data: options.image.data,
+      },
+    });
+  }
+
+  if (Array.isArray(options.parts)) {
+    parts.push(...options.parts);
+  }
+
+  const prompt = buildPrompt({ kind, payload });
+  parts.push({ text: prompt });
+
+  logGemini("request", {
+    kind,
+    model: GEMINI_STANDARD_MODEL,
+    mode: "standard",
+    timeoutMs: options.timeoutMs ?? 60000,
+    hasImage: Boolean(options.image?.data && options.image?.mimeType),
+    payloadPreview: previewValue(payload),
+    promptPreview: previewValue(prompt),
+  });
+
+  const result = await client.models.generateContent({
+    model: GEMINI_STANDARD_MODEL,
+    contents: [{ role: "user", parts }],
+    config: {
+      systemInstruction:
+        options.systemInstruction ??
+        "Return valid JSON only. No markdown, no code fences, no extra text.",
+      temperature: options.temperature ?? 0.4,
+    },
+  });
+
+  const responseText = result?.text ?? "";
+  const parsed = safeJsonParse(extractFirstJsonValue(responseText));
+
+  logGemini("response", {
+    kind,
+    mode: "standard",
+    elapsedMs: Date.now() - startedAt,
+    responsePreview: previewValue(responseText),
+    parsed: Boolean(parsed),
+  });
+
+  if (!parsed) {
+    throw new Error("Gemini did not return valid JSON");
+  }
+
+  return { source: "gemini", ...parsed };
+};
+
 const runLiveGemini = async ({ kind, payload, options = {} }) => {
+  const startedAt = Date.now();
   const client = new GoogleGenAI({
     apiKey: env.geminiApiKey,
     httpOptions: { apiVersion: "v1alpha" },
@@ -261,7 +347,18 @@ const runLiveGemini = async ({ kind, payload, options = {} }) => {
     parts.push(...options.parts);
   }
 
-  parts.push({ text: buildPrompt({ kind, payload }) });
+  const prompt = buildPrompt({ kind, payload });
+  parts.push({ text: prompt });
+
+  logGemini("request", {
+    kind,
+    model: env.geminiLiveModel,
+    timeoutMs: options.timeoutMs ?? 120000,
+    hasImage: Boolean(options.image?.data && options.image?.mimeType),
+    extraParts: Array.isArray(options.parts) ? options.parts.length : 0,
+    payloadPreview: previewValue(payload),
+    promptPreview: previewValue(prompt),
+  });
 
   const chunks = [];
   const responseText = await new Promise(async (resolve, reject) => {
@@ -344,6 +441,13 @@ const runLiveGemini = async ({ kind, payload, options = {} }) => {
   });
 
   const parsed = safeJsonParse(extractFirstJsonValue(responseText));
+  logGemini("response", {
+    kind,
+    elapsedMs: Date.now() - startedAt,
+    responsePreview: previewValue(responseText),
+    parsed: Boolean(parsed),
+  });
+
   if (!parsed) {
     throw new Error("Gemini did not return valid JSON");
   }
@@ -353,8 +457,27 @@ const runLiveGemini = async ({ kind, payload, options = {} }) => {
 
 export const callGemini = async (kind, payload, options = {}) => {
   if (!env.geminiApiKey) {
+    logGemini("skip", {
+      kind,
+      reason: "GEMINI_API_KEY is not configured",
+    });
     return null;
   }
 
-  return runLiveGemini({ kind, payload, options });
+  const hasImage = Boolean(options.image?.data && options.image?.mimeType);
+
+  try {
+    if (hasImage) {
+      return await runLiveGemini({ kind, payload, options });
+    }
+    return await runStandardGemini({ kind, payload, options });
+  } catch (error) {
+    logGemini("error", {
+      kind,
+      message: error?.message ?? "Unknown Gemini error",
+      name: error?.name,
+      stack: env.nodeEnv === "development" ? error?.stack : undefined,
+    });
+    throw error;
+  }
 };

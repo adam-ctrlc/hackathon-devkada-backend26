@@ -70,9 +70,27 @@ export const fallbackWeeklyAnalysis = ({
   scans,
   diaries,
   summaries,
+  waterLogs = [],
+  mealTiming = {},
+  budget = null,
+  contextReasons = [],
 }) => {
   const metrics = buildDashboardMetrics({ profile, scans, diaries });
   const daily = summarizeDay({ scans, diaries, profile });
+  const waterTotal = waterLogs.reduce(
+    (sum, log) => sum + Number(log.amountMl ?? 0),
+    0,
+  );
+  const mealTimingSignals = Object.entries(mealTiming)
+    .filter(([, count]) => Number(count) > 0)
+    .slice(0, 3)
+    .map(([period, count]) => `${period} ${count}`);
+  const budgetSpent = Number(budget?.spent ?? budget?.amountSpent);
+  const budgetPlanned = Number(budget?.planned ?? budget?.budgetAmount);
+  const budgetCurrency = budget?.currency ?? budget?.budgetCurrency ?? "PHP";
+  const budgetNote = Number.isFinite(budgetSpent)
+    ? `Budget activity is ${budgetCurrency} ${budgetSpent.toFixed(0)} spent${Number.isFinite(budgetPlanned) ? ` and ${budgetCurrency} ${budgetPlanned.toFixed(0)} planned` : ""}.`
+    : null;
 
   return {
     source: "fallback",
@@ -84,6 +102,16 @@ export const fallbackWeeklyAnalysis = ({
       `Energy: ${metrics.energySupport.level}`,
       `Heart health: ${metrics.heartHealth.level}`,
       `Digestion: ${metrics.digestion.level}`,
+      ...(waterLogs.length
+        ? [
+            `Water logged: ${waterTotal.toFixed(0)}ml across ${waterLogs.length} entries.`,
+          ]
+        : []),
+      ...(mealTimingSignals.length
+        ? [`Meal timing: ${mealTimingSignals.join(", ")}.`]
+        : []),
+      ...(budgetNote ? [budgetNote] : []),
+      ...(contextReasons.length ? [contextReasons[0]] : []),
     ],
     suggestions: [
       ...daily.suggestions,

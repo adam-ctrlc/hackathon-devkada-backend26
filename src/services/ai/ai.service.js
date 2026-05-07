@@ -11,7 +11,9 @@ export {
   analyzeMeal,
   analyzeManualMeal,
   analyzePhotoMeal,
+  correctManualFoodInput,
   generateWellnessSuggestions,
   generateBudgetSuggestions,
   generateWorkoutSuggestions,
+  generateWorkoutLogOverview,
 } from "./ai-analysis.service.js";

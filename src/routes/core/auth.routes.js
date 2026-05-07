@@ -9,6 +9,7 @@ import {
   issueAuthTokens,
   issueResetToken,
   normalizeAuthEmail,
+  normalizeAuthUsername,
   sanitizeAuthProfile,
   verifyPassword,
   verifyAccessToken,
@@ -16,6 +17,14 @@ import {
   verifyResetToken,
 } from "../../services/auth/auth.service.js";
 import { requireTurnstileVerification } from "../../services/auth/turnstile.service.js";
+import { validateBody } from "../../validation/validate.js";
+import {
+  authLoginBodySchema,
+  authRefreshBodySchema,
+  authRegisterBodySchema,
+  passwordResetConfirmBodySchema,
+  passwordResetRequestBodySchema,
+} from "../../validation/core/auth.schema.js";
 
 const requireText = (value, field) => {
   if (typeof value !== "string" || !value.trim()) {
@@ -34,9 +43,21 @@ const normalizeNameParts = (payload = {}) => {
   return { firstName, middleName, lastName };
 };
 
+const normalizeIdentifier = (value) => {
+  const text = String(value ?? "").trim();
+  if (!text) {
+    return "";
+  }
+
+  return text.includes("@")
+    ? normalizeAuthEmail(text)
+    : normalizeAuthUsername(text);
+};
+
 const buildProfileData = (payload = {}) => ({
   ...normalizeNameParts(payload),
   email: normalizeAuthEmail(payload.email) || null,
+  username: normalizeAuthUsername(payload.username) || null,
   role: payload.role?.trim()?.toUpperCase() || "INDIVIDUAL",
   sex: payload.sex?.trim()?.toUpperCase() === "FEMALE" ? "FEMALE" : "MALE",
   age: payload.age !== undefined ? Number(payload.age) : null,
@@ -80,26 +101,28 @@ export const registerAuthRoutes = (app) => {
     "/auth/register",
     authlessWriteLimiter,
     asyncHandler(async (req, res) => {
-      const payload = req.body ?? {};
-      const honeypotError = rejectIfHoneypotHit(payload);
+      const rawPayload = req.body ?? {};
+      const honeypotError = rejectIfHoneypotHit(rawPayload);
       if (honeypotError) {
         throw honeypotError;
       }
+      const payload = validateBody(authRegisterBodySchema, rawPayload);
       await requireTurnstileVerification(payload, req.ip);
       const email = normalizeAuthEmail(payload.email);
-      const password = requireText(payload.password, "password");
+      const username = normalizeAuthUsername(payload.username);
+      const password = payload.password;
 
-      if (!email) {
-        return res.status(400).json({ error: "email is required" });
-      }
-
-      const existing = await prisma.profile.findUnique({
-        where: { email },
+      const existing = await prisma.profile.findFirst({
+        where: {
+          OR: [{ email }, { username }],
+        },
         select: { id: true },
       });
 
       if (existing) {
-        return res.status(409).json({ error: "Email already in use" });
+        return res
+          .status(409)
+          .json({ error: "Email or username already in use" });
       }
 
       const profile = await prisma.profile.create({
@@ -125,26 +148,29 @@ export const registerAuthRoutes = (app) => {
     "/auth/login",
     authlessWriteLimiter,
     asyncHandler(async (req, res) => {
-      const payload = req.body ?? {};
-      const honeypotError = rejectIfHoneypotHit(payload);
+      const rawPayload = req.body ?? {};
+      const honeypotError = rejectIfHoneypotHit(rawPayload);
       if (honeypotError) {
         throw honeypotError;
       }
+      const payload = validateBody(authLoginBodySchema, rawPayload);
       await requireTurnstileVerification(payload, req.ip);
-      const email = normalizeAuthEmail(payload.email);
-      const password = requireText(payload.password, "password");
+      const identifier = normalizeIdentifier(
+        payload.identifier ?? payload.email ?? payload.username,
+      );
+      const password = payload.password;
 
-      if (!email) {
-        return res.status(400).json({ error: "email is required" });
-      }
-
-      const profile = await prisma.profile.findUnique({
-        where: { email },
+      const profile = await prisma.profile.findFirst({
+        where: {
+          OR: [{ email: identifier }, { username: identifier }],
+        },
         select: getAuthProfileSelect,
       });
 
       if (!profile || !(await verifyPassword(password, profile.passwordHash))) {
-        return res.status(401).json({ error: "Invalid email or password" });
+        return res
+          .status(401)
+          .json({ error: "Invalid email/username or password" });
       }
 
       const tokens = issueAuthTokens({ profile });
@@ -171,7 +197,7 @@ export const registerAuthRoutes = (app) => {
       if (honeypotError) {
         throw honeypotError;
       }
-      const refreshToken = requireText(req.body?.refreshToken, "refreshToken");
+      const { refreshToken } = validateBody(authRefreshBodySchema, req.body);
       const decoded = verifyRefreshToken(refreshToken);
 
       const profile = await prisma.profile.findUnique({
@@ -201,10 +227,9 @@ export const registerAuthRoutes = (app) => {
       if (honeypotError) {
         throw honeypotError;
       }
-      const email = normalizeAuthEmail(req.body?.email);
-      if (!email) {
-        return res.status(400).json({ error: "email is required" });
-      }
+      const payload = validateBody(passwordResetRequestBodySchema, req.body);
+      const email = normalizeAuthEmail(payload.email);
+      await requireTurnstileVerification(payload, req.ip);
 
       const profile = await prisma.profile.findUnique({
         where: { email },
@@ -240,8 +265,14 @@ export const registerAuthRoutes = (app) => {
       if (honeypotError) {
         throw honeypotError;
       }
-      const resetToken = requireText(req.body?.resetToken, "resetToken");
-      const newPassword = requireText(req.body?.newPassword, "newPassword");
+      const { resetToken, newPassword, ...payload } = validateBody(
+        passwordResetConfirmBodySchema,
+        req.body,
+      );
+      await requireTurnstileVerification(
+        { resetToken, newPassword, ...payload },
+        req.ip,
+      );
       const decoded = verifyResetToken(resetToken);
       const profileId = String(decoded.sub ?? "");
 

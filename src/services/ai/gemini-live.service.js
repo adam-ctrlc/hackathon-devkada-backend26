@@ -3,6 +3,13 @@ import { env } from "../../config/env.js";
 const safeTrim = (value) => (typeof value === "string" ? value.trim() : "");
 
 const defaultModel = "gemini-3.1-flash-live-preview";
+const jsonSystemInstruction = [
+  "You are a JSON-only response generator.",
+  "Return exactly one valid JSON value and no surrounding prose, markdown, code fences, greetings, or explanations.",
+  "The response must be parseable by JSON.parse.",
+  "If the user asks for a shape or schema, follow it exactly.",
+  'Only return {"error":"unable_to_generate_json"} if the request is impossible to represent as JSON.',
+].join(" ");
 
 const redact = (value) => {
   const text = safeTrim(value);
@@ -99,6 +106,7 @@ export const createGeminiEphemeralToken = async ({
       expireTime: token.expireTime || expireTime,
       newSessionExpireTime,
       model: resolvedModel,
+      systemInstruction: jsonSystemInstruction,
     };
   } catch (error) {
     console.error("gemini.token.create.error", {

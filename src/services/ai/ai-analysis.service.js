@@ -44,7 +44,9 @@ export const analyzeScan = async ({
   };
 
   try {
-    const geminiResult = await callGemini("scan", payload);
+    const geminiResult = await callGemini("scan", payload, {
+      timeoutMs: 20000,
+    });
     if (geminiResult) {
       return {
         ...geminiResult,
@@ -103,7 +105,7 @@ export const analyzeDiary = async ({
 
   try {
     return (
-      (await callGemini("diary", payload)) ??
+      (await callGemini("diary", payload, { timeoutMs: 20000 })) ??
       fallbackDiaryAnalysis({
         entry,
         moodTag,
@@ -129,21 +131,52 @@ export const analyzeDiary = async ({
   }
 };
 
-export const analyzeWeekly = async ({ profile, scans, diaries, summaries }) => {
+export const analyzeWeekly = async ({
+  profile,
+  scans,
+  diaries,
+  summaries,
+  waterLogs = [],
+  mealTiming = {},
+  budget = null,
+  contextReasons = [],
+}) => {
   const payload = {
     profile: buildProfileContext(profile),
     scans,
     diaries,
     summaries,
+    waterLogs,
+    mealTiming,
+    budget,
+    contextReasons,
   };
 
   try {
     return (
       (await callGemini("weekly", payload)) ??
-      fallbackWeeklyAnalysis({ profile, scans, diaries, summaries })
+      fallbackWeeklyAnalysis({
+        profile,
+        scans,
+        diaries,
+        summaries,
+        waterLogs,
+        mealTiming,
+        budget,
+        contextReasons,
+      })
     );
   } catch {
-    return fallbackWeeklyAnalysis({ profile, scans, diaries, summaries });
+    return fallbackWeeklyAnalysis({
+      profile,
+      scans,
+      diaries,
+      summaries,
+      waterLogs,
+      mealTiming,
+      budget,
+      contextReasons,
+    });
   }
 };
 
@@ -154,6 +187,66 @@ export const analyzeMeal = async ({ profile, healthContext, mealText }) => {
     mealText,
     lookupPackagedFood: true,
   });
+};
+
+export const correctManualFoodInput = async ({
+  profile,
+  healthContext,
+  input,
+}) => {
+  const originalInput = String(input ?? "").trim();
+  const profileContext = buildProfileContext(profile, healthContext);
+
+  if (!originalInput) {
+    return {
+      source: "fallback",
+      originalInput,
+      correctedQuery: originalInput,
+      displayName: originalInput,
+      confidence: "Low",
+      reason: "No food input was provided.",
+    };
+  }
+
+  try {
+    const geminiResult = await callGemini(
+      "manual-food-correction",
+      {
+        profile: profileContext,
+        healthContext,
+        input: originalInput,
+      },
+      { timeoutMs: 15000 },
+    );
+
+    if (geminiResult?.correctedQuery || geminiResult?.displayName) {
+      return {
+        source: "gemini",
+        originalInput,
+        correctedQuery:
+          String(
+            geminiResult.correctedQuery ?? geminiResult.displayName,
+          ).trim() || originalInput,
+        displayName:
+          String(
+            geminiResult.displayName ?? geminiResult.correctedQuery,
+          ).trim() || originalInput,
+        confidence: geminiResult.confidence ?? "Medium",
+        reason: geminiResult.reason ?? null,
+      };
+    }
+  } catch {
+    // fall through to original input
+  }
+
+  return {
+    source: "fallback",
+    originalInput,
+    correctedQuery: originalInput,
+    displayName: originalInput,
+    confidence: "Low",
+    reason: "Used the original text because correction was unavailable.",
+  };
 };
 
 const normalizeNutrition = (nutrition = {}) => ({
@@ -503,7 +596,9 @@ export const generateBudgetSuggestions = async ({
   };
 
   try {
-    const geminiResult = await callGemini("budget", payload);
+    const geminiResult = await callGemini("budget", payload, {
+      timeoutMs: 20000,
+    });
     if (geminiResult?.meals?.length) {
       return {
         source: "gemini",
@@ -594,6 +689,54 @@ export const generateWorkoutSuggestions = async ({
     ],
     calendarNote: "Do one session this week and build from there.",
     profileSignals: profileContext.signals,
+  };
+};
+
+export const generateWorkoutLogOverview = async ({
+  profile,
+  healthContext,
+  workout,
+}) => {
+  const profileContext = buildProfileContext(profile, healthContext);
+  const payload = {
+    profile: profileContext,
+    healthContext,
+    workout,
+  };
+
+  try {
+    const geminiResult = await callGemini("workout-log-overview", payload, {
+      timeoutMs: 25000,
+    });
+
+    if (geminiResult) {
+      return {
+        source: "gemini",
+        feedback:
+          geminiResult.feedback ??
+          "Workout saved. Keep the next session consistent and controlled.",
+        recoveryTip: geminiResult.recoveryTip ?? null,
+        nextSessionFocus: geminiResult.nextSessionFocus ?? null,
+        riskNote: geminiResult.riskNote ?? null,
+      };
+    }
+  } catch {
+    // fall through to local overview
+  }
+
+  const session = workout?.notes?.sessionTime
+    ? `${workout.notes.sessionTime} session`
+    : "Workout";
+  const totalMinutes = Number(workout?.durationMinutes ?? 0);
+  return {
+    source: "fallback",
+    feedback: `${session} logged for ${totalMinutes} minutes. Keep form controlled and recover with water and protein if this was a strength session.`,
+    recoveryTip:
+      "Use a light cool down and stop if pain or unusual symptoms appear.",
+    nextSessionFocus:
+      "Repeat the same pattern or reduce volume if soreness is high.",
+    riskNote:
+      "General wellness guidance only; adjust intensity to your current health status.",
   };
 };
 

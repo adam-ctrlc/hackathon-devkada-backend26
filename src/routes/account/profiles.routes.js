@@ -7,6 +7,10 @@ import {
   buildDisplayName,
 } from "../../services/profile/profile.service.js";
 import {
+  normalizeAuthUsername,
+  verifyPassword,
+} from "../../services/auth/auth.service.js";
+import {
   buildProfileMetrics,
   buildStatusRecommendation,
 } from "../../services/wellness/analysis.service.js";
@@ -14,16 +18,29 @@ import crypto from "node:crypto";
 import { authlessWriteLimiter } from "../../middleware/security.middleware.js";
 import { requireProfileAccess } from "../../services/profile/profile-access.service.js";
 import { rejectIfHoneypotHit } from "../../services/auth/honeypot.service.js";
-
-const requireText = (value, field) => {
-  if (typeof value !== "string" || !value.trim()) {
-    throw new Error(`${field} is required`);
-  }
-  return value.trim();
-};
+import { assertSafeTextFields } from "../../services/safety/text-safety.service.js";
+import { validateBody } from "../../validation/validate.js";
+import {
+  diaryPinBodySchema,
+  diaryPinResetBodySchema,
+  inviteAcceptBodySchema,
+  inviteCreateBodySchema,
+  profileCreateBodySchema,
+  profileUpdateBodySchema,
+} from "../../validation/account/profile.schema.js";
 
 const hashPin = (pin) =>
   crypto.createHash("sha256").update(String(pin)).digest("hex");
+const diaryLockSelect = {
+  id: true,
+  role: true,
+  parentProfileId: true,
+  diaryPinHash: true,
+  passwordHash: true,
+};
+const buildDiaryLockState = (profile) => ({
+  diaryLocked: Boolean(profile?.diaryPinHash),
+});
 const normalizeCurrency = (value) => {
   const text = String(value ?? "")
     .trim()
@@ -42,6 +59,7 @@ const generateInviteCode = () =>
   crypto.randomBytes(6).toString("hex").toUpperCase();
 const safeProfilePreview = {
   id: true,
+  username: true,
   firstName: true,
   middleName: true,
   lastName: true,
@@ -70,8 +88,39 @@ const requireNameParts = (payload = {}) => {
 };
 
 const normalizeProfileSex = (value) => normalizeSex(value);
+const findProfileByUsername = (username, profileId) =>
+  prisma.profile.findFirst({
+    where: profileId ? { username, NOT: { id: profileId } } : { username },
+    select: { id: true },
+  });
 
 const profileSelect = {
+  id: true,
+  email: true,
+  username: true,
+  firstName: true,
+  middleName: true,
+  lastName: true,
+  role: true,
+  age: true,
+  sex: true,
+  heightCm: true,
+  weightKg: true,
+  activityLevel: true,
+  healthGoal: true,
+  diaryPinHash: true,
+  parentProfileId: true,
+  incomeAmount: true,
+  incomeFrequency: true,
+  incomeCurrency: true,
+  budgetAmount: true,
+  budgetFrequency: true,
+  budgetCurrency: true,
+  allergies: true,
+  foodPreferences: true,
+  dietRestrictions: true,
+  createdAt: true,
+  updatedAt: true,
   healthContext: true,
   parentProfile: { select: safeProfilePreview },
   children: { select: safeProfilePreview },
@@ -87,15 +136,30 @@ export const registerProfileRoutes = (app) => {
     "/profiles",
     authlessWriteLimiter,
     asyncHandler(async (req, res) => {
-      const payload = req.body ?? {};
-      const honeypotError = rejectIfHoneypotHit(payload);
+      const rawPayload = req.body ?? {};
+      const honeypotError = rejectIfHoneypotHit(rawPayload);
       if (honeypotError) {
         throw honeypotError;
       }
+      const payload = validateBody(profileCreateBodySchema, rawPayload);
       const nameParts = requireNameParts(payload);
+      const username = normalizeAuthUsername(payload.username);
+      if (username) {
+        const existingUsername = await findProfileByUsername(username);
+        if (existingUsername) {
+          return res.status(409).json({ error: "Username already in use" });
+        }
+      }
+      assertSafeTextFields([
+        { label: "First name", value: nameParts.firstName },
+        { label: "Middle name", value: nameParts.middleName },
+        { label: "Last name", value: nameParts.lastName },
+        { label: "Health goal", value: payload.healthGoal },
+      ]);
       const profile = await prisma.profile.create({
         data: {
           ...nameParts,
+          username: username || null,
           role: normalizeRole(payload.role),
           age: payload.age ? Number(payload.age) : null,
           sex: normalizeProfileSex(payload.sex),
@@ -138,7 +202,7 @@ export const registerProfileRoutes = (app) => {
     asyncHandler(async (req, res) => {
       const profile = await prisma.profile.findUnique({
         where: { id: req.params.profileId },
-        include: profileSelect,
+        select: profileSelect,
       });
 
       if (!profile) {
@@ -164,7 +228,40 @@ export const registerProfileRoutes = (app) => {
     "/profiles/:profileId",
     authlessWriteLimiter,
     asyncHandler(async (req, res) => {
-      const payload = req.body ?? {};
+      const payload = validateBody(profileUpdateBodySchema, req.body);
+      const profileMeta = await prisma.profile.findUnique({
+        where: { id: req.params.profileId },
+        select: { id: true, role: true, parentProfileId: true },
+      });
+
+      if (!profileMeta) {
+        return res.status(404).json({ error: "Profile not found" });
+      }
+
+      const access = await requireProfileAccess(req, res, profileMeta);
+      if (!access.allowed) {
+        return;
+      }
+
+      if (payload.username !== undefined) {
+        const username = normalizeAuthUsername(payload.username);
+        if (username) {
+          const existingUsername = await findProfileByUsername(
+            username,
+            req.params.profileId,
+          );
+          if (existingUsername) {
+            return res.status(409).json({ error: "Username already in use" });
+          }
+        }
+      }
+      assertSafeTextFields([
+        { label: "First name", value: payload.firstName ?? payload.name },
+        { label: "Middle name", value: payload.middleName },
+        { label: "Last name", value: payload.lastName },
+        { label: "Health goal", value: payload.healthGoal },
+        { label: "Activity level", value: payload.activityLevel },
+      ]);
       const profile = await prisma.profile.update({
         where: { id: req.params.profileId },
         data: {
@@ -174,6 +271,16 @@ export const registerProfileRoutes = (app) => {
           payload.middleName !== undefined
             ? requireNameParts(payload)
             : {}),
+          username:
+            payload.username !== undefined
+              ? normalizeAuthUsername(payload.username) || null
+              : undefined,
+          email:
+            payload.email !== undefined
+              ? String(payload.email ?? "")
+                  .trim()
+                  .toLowerCase() || null
+              : undefined,
           role:
             payload.role !== undefined
               ? normalizeRole(payload.role)
@@ -235,14 +342,101 @@ export const registerProfileRoutes = (app) => {
     "/profiles/:profileId/diary-lock",
     authlessWriteLimiter,
     asyncHandler(async (req, res) => {
-      const pin = requireText(req.body?.pin, "pin");
-
-      const profile = await prisma.profile.update({
+      const profile = await prisma.profile.findUnique({
         where: { id: req.params.profileId },
+        select: diaryLockSelect,
+      });
+
+      if (!profile) {
+        return res.status(404).json({ error: "Profile not found" });
+      }
+
+      const access = await requireProfileAccess(req, res, profile);
+      if (!access.allowed) {
+        return;
+      }
+
+      const { pin } = validateBody(diaryPinBodySchema, req.body);
+      const updated = await prisma.profile.update({
+        where: { id: profile.id },
         data: { diaryPinHash: hashPin(pin) },
       });
 
-      res.json({ profile: formatProfile(profile), diaryLocked: true });
+      res.status(profile.diaryPinHash ? 200 : 201).json({
+        profile: formatProfile(updated),
+        ...buildDiaryLockState(updated),
+      });
+    }),
+  );
+
+  app.put(
+    "/profiles/:profileId/diary-lock",
+    authlessWriteLimiter,
+    asyncHandler(async (req, res) => {
+      const profile = await prisma.profile.findUnique({
+        where: { id: req.params.profileId },
+        select: diaryLockSelect,
+      });
+
+      if (!profile) {
+        return res.status(404).json({ error: "Profile not found" });
+      }
+
+      const access = await requireProfileAccess(req, res, profile);
+      if (!access.allowed) {
+        return;
+      }
+
+      const { pin } = validateBody(diaryPinBodySchema, req.body);
+      const updated = await prisma.profile.update({
+        where: { id: profile.id },
+        data: { diaryPinHash: hashPin(pin) },
+      });
+
+      res.json({
+        profile: formatProfile(updated),
+        ...buildDiaryLockState(updated),
+      });
+    }),
+  );
+
+  app.post(
+    "/profiles/:profileId/diary-lock/reset",
+    authlessWriteLimiter,
+    asyncHandler(async (req, res) => {
+      const profile = await prisma.profile.findUnique({
+        where: { id: req.params.profileId },
+        select: diaryLockSelect,
+      });
+
+      if (!profile) {
+        return res.status(404).json({ error: "Profile not found" });
+      }
+
+      const access = await requireProfileAccess(req, res, profile);
+      if (!access.allowed) {
+        return;
+      }
+
+      const { password, pin } = validateBody(diaryPinResetBodySchema, req.body);
+
+      const passwordMatches = await verifyPassword(
+        password,
+        profile.passwordHash,
+      );
+      if (!passwordMatches) {
+        return res.status(401).json({ error: "Password is incorrect" });
+      }
+
+      const updated = await prisma.profile.update({
+        where: { id: profile.id },
+        data: { diaryPinHash: hashPin(pin) },
+      });
+
+      res.json({
+        profile: formatProfile(updated),
+        ...buildDiaryLockState(updated),
+      });
     }),
   );
 
@@ -250,12 +444,47 @@ export const registerProfileRoutes = (app) => {
     "/profiles/:profileId/diary-lock",
     authlessWriteLimiter,
     asyncHandler(async (req, res) => {
-      const profile = await prisma.profile.update({
+      const profile = await prisma.profile.findUnique({
         where: { id: req.params.profileId },
+        select: diaryLockSelect,
+      });
+
+      if (!profile) {
+        return res.status(404).json({ error: "Profile not found" });
+      }
+
+      const access = await requireProfileAccess(req, res, profile);
+      if (!access.allowed) {
+        return;
+      }
+
+      const updated = await prisma.profile.update({
+        where: { id: profile.id },
         data: { diaryPinHash: null },
       });
 
-      res.json({ profile: formatProfile(profile), diaryLocked: false });
+      res.json({ profile: formatProfile(updated), diaryLocked: false });
+    }),
+  );
+
+  app.get(
+    "/profiles/:profileId/diary-lock",
+    asyncHandler(async (req, res) => {
+      const profile = await prisma.profile.findUnique({
+        where: { id: req.params.profileId },
+        select: diaryLockSelect,
+      });
+
+      if (!profile) {
+        return res.status(404).json({ error: "Profile not found" });
+      }
+
+      const access = await requireProfileAccess(req, res, profile);
+      if (!access.allowed) {
+        return;
+      }
+
+      res.json(buildDiaryLockState(profile));
     }),
   );
 
@@ -263,7 +492,7 @@ export const registerProfileRoutes = (app) => {
     "/profiles/:profileId/invites",
     authlessWriteLimiter,
     asyncHandler(async (req, res) => {
-      const payload = req.body ?? {};
+      const payload = validateBody(inviteCreateBodySchema, req.body);
       const inviter = await prisma.profile.findUnique({
         where: { id: req.params.profileId },
       });
@@ -309,10 +538,9 @@ export const registerProfileRoutes = (app) => {
     "/profiles/invites/accept",
     authlessWriteLimiter,
     asyncHandler(async (req, res) => {
-      const code = requireText(req.body?.code, "code");
-      const childProfileId = requireText(
-        req.body?.childProfileId,
-        "childProfileId",
+      const { code, childProfileId } = validateBody(
+        inviteAcceptBodySchema,
+        req.body,
       );
 
       const invite = await prisma.accountInvite.findUnique({

@@ -8,6 +8,11 @@ const normalizeEmail = (value) =>
     .trim()
     .toLowerCase();
 
+const normalizeUsername = (value) =>
+  String(value ?? "")
+    .trim()
+    .toLowerCase();
+
 const safeTrim = (value) => (typeof value === "string" ? value.trim() : "");
 
 const requireSecret = (value, name) => {
@@ -43,6 +48,7 @@ export const issueAuthTokens = ({ profile }) => {
   const payload = {
     sub: profile.id,
     email: profile.email ?? null,
+    username: profile.username ?? null,
     role: profile.role ?? "INDIVIDUAL",
   };
 
@@ -96,6 +102,7 @@ export const verifyResetToken = (token) =>
 export const getAuthProfileSelect = {
   id: true,
   email: true,
+  username: true,
   passwordHash: true,
   refreshTokenHash: true,
   resetTokenHash: true,
@@ -132,6 +139,7 @@ export const sanitizeAuthProfile = (profile) => {
   }
 
   const {
+    diaryPinHash,
     passwordHash,
     refreshTokenHash,
     resetTokenHash,
@@ -139,7 +147,11 @@ export const sanitizeAuthProfile = (profile) => {
     ...safeProfile
   } = profile;
 
-  return safeProfile;
+  return {
+    ...safeProfile,
+    diaryLocked: Boolean(profile.diaryPinHash),
+  };
 };
 
 export const normalizeAuthEmail = normalizeEmail;
+export const normalizeAuthUsername = normalizeUsername;

@@ -26,8 +26,9 @@ enum Sex {
 }
 
 model Profile {
-  id                  String          @id @default(cuid())
-  email               String?         @unique
+  id                  String                   @id @default(cuid())
+  email               String?                  @unique
+  username            String?                  @unique
   passwordHash        String?
   refreshTokenHash    String?
   resetTokenHash      String?
@@ -36,9 +37,9 @@ model Profile {
   firstName           String
   middleName          String?
   lastName            String
-  role                AccountRole     @default(INDIVIDUAL)
+  role                AccountRole              @default(INDIVIDUAL)
   age                 Int?
-  sex                 Sex             @default(MALE)
+  sex                 Sex                      @default(MALE)
   heightCm            Int?
   weightKg            Float?
   activityLevel       String?
@@ -54,21 +55,43 @@ model Profile {
   allergies           Json
   foodPreferences     Json
   dietRestrictions    Json
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
   healthContext       HealthContext?
-  parentProfile       Profile?        @relation("ProfileParent", fields: [parentProfileId], references: [id], onDelete: SetNull)
-  children            Profile[]       @relation("ProfileParent")
+  parentProfile       Profile?                 @relation("ProfileParent", fields: [parentProfileId], references: [id], onDelete: SetNull)
+  children            Profile[]                @relation("ProfileParent")
   scans               FoodScan[]
   mealLogs            MealLog[]
   workoutLogs         WorkoutLog[]
+  workoutSuggestions  WorkoutSuggestionCache[]
   waterLogs           WaterLog[]
+  sleepLogs           SleepLog[]
+  budgetLogs          FoodBudgetLog[]
   wellnessTasks       WellnessTask[]
+  swapSuggestions     SwapSuggestion[]
   diaryEntries        DiaryEntry[]
   diaryChunks         DiaryChunk[]
   dailySummaries      DailySummary[]
-  sentInvites         AccountInvite[] @relation("InviteSender")
-  receivedInvites     AccountInvite[] @relation("InviteRecipient")
+  aiReflections       AiReflectionCache[]
+  sentInvites         AccountInvite[]          @relation("InviteSender")
+  receivedInvites     AccountInvite[]          @relation("InviteRecipient")
+}
+
+model AiReflectionCache {
+  id               String   @id @default(cuid())
+  profileId        String
+  kind             String
+  reflection       String
+  mentalMotivation String?
+  physicalMotivation String?
+  whyThisMatters   String?
+  payload          Json?
+  generatedAt      DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  profile          Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, kind])
 }
 
 model HealthContext {
@@ -98,7 +121,7 @@ model AccountInvite {
 }
 
 model FoodScan {
-  id                     String   @id @default(cuid())
+  id                     String    @id @default(cuid())
   profileId              String
   imageUrl               String?
   imageThumbnailUrl      String?
@@ -121,12 +144,14 @@ model FoodScan {
   betterAlternatives     Json
   notes                  Json
   aiAnalysis             Json?
-  createdAt              DateTime @default(now())
-  profile                Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  mealPeriod             String?
+  eatenAt                DateTime?
+  createdAt              DateTime  @default(now())
+  profile                Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
 }
 
 model MealLog {
-  id                     String   @id @default(cuid())
+  id                     String    @id @default(cuid())
   profileId              String
   imageUrl               String?
   imageThumbnailUrl      String?
@@ -150,8 +175,10 @@ model MealLog {
   betterAlternatives     Json
   notes                  Json
   aiAnalysis             Json?
-  createdAt              DateTime @default(now())
-  profile                Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  mealPeriod             String?
+  eatenAt                DateTime?
+  createdAt              DateTime  @default(now())
+  profile                Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
 }
 
 model WorkoutLog {
@@ -169,6 +196,23 @@ model WorkoutLog {
   aiAnalysis      Json?
   createdAt       DateTime @default(now())
   profile         Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model WorkoutSuggestionCache {
+  id             String   @id @default(cuid())
+  profileId      String
+  date           DateTime
+  source         String   @default("gemini")
+  headline       String?
+  sessionNote    String?
+  workouts       Json
+  calendarNote   String?
+  profileSignals Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  profile        Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, date])
 }
 
 model DiaryEntry {
@@ -235,12 +279,64 @@ model WellnessTask {
   profile   Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
 }
 
+model SwapSuggestion {
+  id              String   @id @default(cuid())
+  profileId       String
+  from            String
+  to              String
+  reason          String
+  supportLevel    String?
+  status          String   @default("suggested")
+  source          String   @default("gemini-live")
+  nutrition       Json?
+  delta           Json
+  groceries       Json
+  aiPayload       Json?
+  profileSnapshot String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  profile         Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model FoodBudgetLog {
+  id         String    @id @default(cuid())
+  profileId  String
+  title      String
+  amount     Float
+  currency   String    @default("PHP")
+  category   String?
+  entryType  String    @default("planned")
+  items      Json?
+  note       String?
+  plannedFor DateTime?
+  spentAt    DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  profile    Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
 model WaterLog {
-  id        String   @id @default(cuid())
-  profileId String
-  amountMl  Int
-  source    String   @default("manual")
-  note      String?
-  createdAt DateTime @default(now())
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  profileId   String
+  amountMl    Int
+  glassCount  Int?
+  glassSizeMl Int?
+  waterPeriod String?
+  drankAt     DateTime?
+  source      String    @default("manual")
+  note        String?
+  createdAt   DateTime  @default(now())
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model SleepLog {
+  id          String   @id @default(cuid())
+  profileId   String
+  hours       Float
+  sleepPeriod String?
+  sleptAt     DateTime?
+  source      String   @default("manual")
+  note        String?
+  createdAt   DateTime @default(now())
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
 }

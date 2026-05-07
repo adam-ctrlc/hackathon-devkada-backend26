@@ -10,17 +10,22 @@ export const getWaterIntakeRange = async ({ profileId, days = 7 }) => {
   const limitDays = Math.max(1, Math.min(90, Number(days) || 7));
   const since = new Date();
   since.setDate(since.getDate() - (limitDays - 1));
+  const start = startOfDay(since);
+  const end = endOfDay(new Date());
   const logs = await prisma.waterLog.findMany({
     where: {
       profileId,
-      createdAt: { gte: startOfDay(since), lte: endOfDay(new Date()) },
+      OR: [
+        { drankAt: { gte: start, lte: end } },
+        { drankAt: null, createdAt: { gte: start, lte: end } },
+      ],
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ drankAt: "desc" }, { createdAt: "desc" }],
   });
 
   const byDate = new Map();
   for (const log of logs) {
-    const key = toDateKey(log.createdAt);
+    const key = toDateKey(log.drankAt ?? log.createdAt);
     byDate.set(key, (byDate.get(key) ?? 0) + (Number(log.amountMl) || 0));
   }
 
@@ -78,14 +83,28 @@ export const buildWaterStreaks = ({ waterSeries = [], targetMl = 1500 }) => {
 export const recordWaterLog = async ({
   profileId,
   amountMl,
+  glassCount = null,
+  glassSizeMl = null,
+  waterPeriod = null,
   source = "manual",
   note = null,
+  drankAt = null,
   createdAt = new Date(),
 }) =>
   prisma.waterLog.create({
     data: {
       profileId,
       amountMl: Number(amountMl),
+      glassCount:
+        glassCount == null || !Number.isFinite(Number(glassCount))
+          ? null
+          : Number(glassCount),
+      glassSizeMl:
+        glassSizeMl == null || !Number.isFinite(Number(glassSizeMl))
+          ? null
+          : Number(glassSizeMl),
+      waterPeriod,
+      drankAt,
       source,
       note,
       createdAt,

@@ -2,6 +2,7 @@ import { prisma } from "../../lib/prisma.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { buildStatusRecommendation } from "../../services/wellness/analysis.service.js";
 import { authlessWriteLimiter } from "../../middleware/security.middleware.js";
+import { assertSafeTextFields } from "../../services/safety/text-safety.service.js";
 
 export const registerHealthRoutes = (app) => {
   app.get("/health", (req, res) => {
@@ -28,6 +29,12 @@ export const registerHealthRoutes = (app) => {
       if (!profile) {
         return res.status(404).json({ error: "Profile not found" });
       }
+
+      assertSafeTextFields([
+        { label: "Status", value: payload.status },
+        { label: "Personal notes", value: payload.notes },
+        { label: "Custom restriction", value: payload.customRestriction },
+      ]);
 
       const context = await prisma.healthContext.upsert({
         where: { profileId: payload.profileId },

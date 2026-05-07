@@ -203,6 +203,18 @@ export const buildDiaryReflection = ({
   scanSignals = [],
 }) => {
   const pieces = [];
+  const normalizedSignals = (Array.isArray(scanSignals) ? scanSignals : [])
+    .map((signal) => {
+      if (signal && typeof signal === "object") {
+        return String(signal.label ?? signal.detail ?? signal.title ?? "")
+          .trim()
+          .toLowerCase();
+      }
+      return String(signal ?? "")
+        .trim()
+        .toLowerCase();
+    })
+    .filter(Boolean);
 
   if (moodTag) {
     pieces.push(`Your mood today was ${moodTag}.`);
@@ -232,11 +244,11 @@ export const buildDiaryReflection = ({
     pieces.push("Your activity supports energy and digestion.");
   }
 
-  if (scanSignals.some((signal) => signal.includes("high sodium"))) {
+  if (normalizedSignals.some((signal) => signal.includes("high sodium"))) {
     pieces.push("Some recent food choices were high in sodium.");
   }
 
-  if (scanSignals.some((signal) => signal.includes("low protein"))) {
+  if (normalizedSignals.some((signal) => signal.includes("low protein"))) {
     pieces.push(
       "Adding protein like egg, tofu, tuna, or chicken could support recovery and energy.",
     );

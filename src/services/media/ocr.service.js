@@ -1,5 +1,19 @@
 import { env } from "../../config/env.js";
 
+const runLocalTesseract = async (imageBuffer) => {
+  const tesseractModule = await import("tesseract.js");
+  const tesseract = tesseractModule.default;
+  const { PSM } = tesseractModule;
+  const result = await tesseract.recognize(imageBuffer, "eng", {
+    tessedit_pageseg_mode: PSM.SPARSE_TEXT,
+    tessedit_char_whitelist: "0123456789",
+    preserve_interword_spaces: "1",
+    classify_bln_numeric_mode: "1",
+  });
+
+  return String(result?.data?.text ?? "").trim();
+};
+
 export const extractTextFromImage = async (imageBuffer) => {
   if (!imageBuffer?.length) {
     return "";
@@ -22,12 +36,17 @@ export const extractTextFromImage = async (imageBuffer) => {
     body: form,
   });
 
-  if (!response.ok) {
-    throw new Error(`OCR.space request failed with HTTP ${response.status}`);
+  if (response.ok) {
+    const data = await response.json();
+    const parsedText =
+      data?.ParsedResults?.map((item) => item?.ParsedText ?? "").join("\n") ??
+      "";
+
+    const text = String(parsedText ?? "").trim();
+    if (text) {
+      return text;
+    }
   }
 
-  const data = await response.json();
-  const parsedText = data?.ParsedResults?.map((item) => item?.ParsedText ?? "").join("\n") ?? "";
-
-  return String(parsedText ?? "").trim();
+  return runLocalTesseract(imageBuffer);
 };

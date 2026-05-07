@@ -37,6 +37,29 @@ const upload = multer({
   },
 });
 
+const resolveMealTiming = (payload = {}) => {
+  const eatenAt = payload.eatenAt ? new Date(payload.eatenAt) : new Date();
+  const safeEatenAt = Number.isNaN(eatenAt.getTime()) ? new Date() : eatenAt;
+  const hour = safeEatenAt.getHours();
+  const inferred =
+    hour < 5
+      ? "midnight"
+      : hour < 11
+        ? "morning"
+        : hour < 15
+          ? "afternoon"
+          : hour < 19
+            ? "evening"
+            : "night";
+
+  return {
+    eatenAt: safeEatenAt,
+    mealPeriod: String(payload.mealPeriod ?? inferred)
+      .trim()
+      .toLowerCase(),
+  };
+};
+
 export const registerMealsRoutes = (app) => {
   app.post(
     "/meals",
@@ -44,6 +67,7 @@ export const registerMealsRoutes = (app) => {
     asyncHandler(async (req, res) => {
       const payload = req.body ?? {};
       const mealText = String(payload.mealText ?? "").trim();
+      const timing = resolveMealTiming(payload);
 
       if (!payload.profileId) {
         return res.status(400).json({ error: "profileId is required" });
@@ -98,6 +122,8 @@ export const registerMealsRoutes = (app) => {
           betterAlternatives: analysis.alternatives ?? [],
           notes: analysis.warnings ?? analysis.flags ?? [],
           aiAnalysis: analysis,
+          mealPeriod: timing.mealPeriod,
+          eatenAt: timing.eatenAt,
         },
       });
 
@@ -120,6 +146,7 @@ export const registerMealsRoutes = (app) => {
     upload.single("photo"),
     asyncHandler(async (req, res) => {
       const payload = req.body ?? {};
+      const timing = resolveMealTiming(payload);
 
       if (!payload.profileId) {
         return res.status(400).json({ error: "profileId is required" });
@@ -208,6 +235,8 @@ export const registerMealsRoutes = (app) => {
           betterAlternatives: analysis.alternatives ?? [],
           notes: analysis.warnings ?? analysis.flags ?? [],
           aiAnalysis: analysis,
+          mealPeriod: timing.mealPeriod,
+          eatenAt: timing.eatenAt,
         },
       });
 

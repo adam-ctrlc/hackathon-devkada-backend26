@@ -2,17 +2,11 @@ import { issueCsrfToken } from "../../middleware/security.middleware.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { createGeminiEphemeralToken } from "../../services/ai/gemini-live.service.js";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
-};
-
 export const registerSecurityRoutes = (app) => {
   app.get("/security/csrf", issueCsrfToken);
 
   app.options("/gemini-token", (req, res) => {
-    res.status(204).set(corsHeaders).end();
+    res.status(204).end();
   });
 
   app.get("/gemini-token", (req, res) => {
@@ -33,7 +27,7 @@ export const registerSecurityRoutes = (app) => {
         config: payload.config ?? {},
       });
 
-      res.set(corsHeaders).json(token);
+      res.json(token);
     }),
   );
 };

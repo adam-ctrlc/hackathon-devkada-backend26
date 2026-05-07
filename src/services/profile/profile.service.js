@@ -43,6 +43,7 @@ export const formatProfile = (profile) => {
 
   return {
     ...safeProfile,
+    diaryLocked: Boolean(profile.diaryPinHash),
     name: fullName,
     role: normalizeAccountRole(profile.role),
     sex: normalizeSex(profile.sex),

@@ -15,7 +15,22 @@ const createLimiter = ({ windowMs, limit, message }) =>
     limit,
     standardHeaders: "draft-7",
     legacyHeaders: false,
-    message,
+    handler: (req, res) => {
+      const resetTime = req.rateLimit?.resetTime
+        ? new Date(req.rateLimit.resetTime).getTime()
+        : Date.now() + windowMs;
+      const retryAfterSeconds = Math.max(
+        1,
+        Math.ceil((resetTime - Date.now()) / 1000),
+      );
+
+      res.setHeader("Retry-After", String(retryAfterSeconds));
+      res.status(429).json({
+        error: message,
+        code: "RATE_LIMITED",
+        retryAfterSeconds,
+      });
+    },
   });
 
 const csrfCookieName = env.csrfCookieName;

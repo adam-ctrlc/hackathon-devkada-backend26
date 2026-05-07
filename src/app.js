@@ -12,7 +12,9 @@ import { registerMealsRoutes } from "./routes/nutrition/meals.routes.js";
 import { registerTaskRoutes } from "./routes/account/tasks.routes.js";
 import { registerSecurityRoutes } from "./routes/core/security.routes.js";
 import { registerWellnessRoutes } from "./routes/nutrition/wellness.routes.js";
+import { registerSwapRoutes } from "./routes/nutrition/swaps.routes.js";
 import { registerFitnessRoutes } from "./routes/fitness/fitness.routes.js";
+import { env } from "./config/env.js";
 import {
   globalRateLimiter,
   csrfProtection,
@@ -25,6 +27,34 @@ import {
 export const createApp = () => {
   const app = express();
   const api = express.Router();
+  const allowedOrigins = new Set(
+    env.corsOrigins.map((origin) => String(origin).trim().replace(/\/$/, "")),
+  );
+
+  app.use((req, res, next) => {
+    const origin = String(req.get("origin") ?? "")
+      .trim()
+      .replace(/\/$/, "");
+    if (origin && allowedOrigins.has(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader("Vary", "Origin");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization, x-csrf-token, x-requested-with, x-diary-pin",
+      );
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+      );
+    }
+
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(204);
+    }
+
+    return next();
+  });
 
   app.use(cookieParser());
   app.use(express.json({ limit: "1mb" }));
@@ -45,6 +75,7 @@ export const createApp = () => {
   registerMealsRoutes(api);
   registerTaskRoutes(api);
   registerWellnessRoutes(api);
+  registerSwapRoutes(api);
   registerFitnessRoutes(api);
 
   app.use("/api/v1", api);
@@ -55,9 +86,12 @@ export const createApp = () => {
 
   app.use((err, req, res, next) => {
     console.error(err);
-    res
-      .status(err.status && Number.isFinite(err.status) ? err.status : 500)
-      .json({ error: err.message ?? "Internal server error" });
+    const status = err.status && Number.isFinite(err.status) ? err.status : 500;
+    const body = { error: err.message ?? "Internal server error" };
+    if (status === 400 && err.details) {
+      body.details = err.details;
+    }
+    res.status(status).json(body);
   });
 
   return app;
