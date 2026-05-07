@@ -26,6 +26,7 @@ import {
 
 export const createApp = () => {
   const app = express();
+  app.set("trust proxy", 1);
   const api = express.Router();
   const allowedOrigins = new Set(
     env.corsOrigins.map((origin) => String(origin).trim().replace(/\/$/, "")),
