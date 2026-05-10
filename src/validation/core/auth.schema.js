@@ -6,6 +6,13 @@ const emptyToUndefined = (value) =>
 const optionalText = (max = 255) =>
   z.preprocess(emptyToUndefined, z.string().trim().max(max).optional());
 
+const emailAddress = z.string().trim().email("Enter a valid email address");
+
+const gmailAddress = emailAddress.refine(
+  (value) => value.toLowerCase().split("@").pop() === "gmail.com",
+  "Use a Gmail address",
+);
+
 const optionalNumber = z.preprocess(
   emptyToUndefined,
   z.coerce.number().finite().nonnegative().optional(),
@@ -26,7 +33,7 @@ export const authRegisterBodySchema = z
     firstName: z.string().trim().min(1, "First name is required").max(120),
     middleName: optionalText(120),
     lastName: z.string().trim().min(1, "Last name is required").max(120),
-    email: z.string().trim().email("Enter a valid email address"),
+    email: gmailAddress,
     username: z.string().trim().min(3).max(80),
     password: z.string().min(8, "Password must be at least 8 characters"),
     role: optionalText(40),
@@ -82,7 +89,7 @@ export const emailResendVerifyBodySchema = z
 
 export const passwordResetRequestBodySchema = z
   .object({
-    email: z.string().trim().email("Enter a valid email address"),
+    email: gmailAddress,
   })
   .passthrough();
 
